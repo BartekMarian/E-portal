@@ -1,0 +1,19 @@
+<ng-container *ngIf="editMode">
+  <button class="btn btn-outline-success btn-sm" (click)="addItem()" matTooltip="Pridať položku">Pridať položku</button>
+  <button class="btn btn-outline-dark btn-sm" (click)="removeItem()" matTooltip="Vymazať položku">Vymazať položku</button>
+</ng-container>
+
+<ag-grid-angular #gridWraper
+                 domLayout='autoHeight'
+                 class="ag-theme-alpine"
+                 rowSelection="single"
+                 [rowData]="rowData.items"
+                 [sideBar]="sideBar"
+                 [rowGroupPanelShow]="rowGroupPanelShow"
+                 (gridReady)="onGridReady($event)"
+                 [columnDefs]="columnDefs"
+                 [paginationAutoPageSize]="true"
+                 (cellValueChanged)="onCellValueChanged($event)"
+                 [pagination]="true">
+</ag-grid-angular>
+

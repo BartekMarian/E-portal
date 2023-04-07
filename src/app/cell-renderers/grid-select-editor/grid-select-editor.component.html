@@ -1,0 +1,41 @@
+<div class="dialogForm-item" *ngIf="paramsReady">
+  <ng-select [ngClass]="(multiple && params.value && params.value.length > 1) ? 'ngMoreFlag' : ''"
+             [items]="_items"
+             bindLabel="label"
+             bindValue="value"
+             [(ngModel)]="value"
+             [virtualScroll]="true"
+             [multiple]="multiple"
+             [searchable]="searchable"
+             [addTag]="tagFunction"
+             [clearable]="clearable"
+             [hideSelected]="hideSelected"
+             [appendTo]="appendTo">
+    <!--      <ng-template ng-header-tmp>-->
+    <!--        <div class="&#45;&#45;option-search-wrapper" *ngIf="searchable">-->
+    <!--          <input class="ng-option-search"-->
+    <!--                 type="text"-->
+    <!--                 [(ngModel)]="userSearchValue"/>-->
+    <!--        </div>-->
+    <!--      </ng-template>-->
+    <ng-template ng-multi-label-tmp let-items="items">
+      <span *ngIf="items.length > 0" class="selection-flag">{{items[0].name}}</span>
+      <span *ngIf="items.length > 1" class="more-flag" matBadge="+{{items.length - 1}}" matBadgeOverlap="true"></span>
+    </ng-template>
+    <ng-template ng-label-tmp let-item="item">
+      <span class="item-label">{{item.label}}</span>
+    </ng-template>
+    <ng-template ng-option-tmp let-item="item">
+      <span class="ng-option-label editor-option-item">{{item.label}}</span>
+    </ng-template>
+    <!--      <ng-template ng-typetosearch-tmp>-->
+    <!--        <div class="ng-option disabled">{{'ng_select_start_typing' | translate}}</div>-->
+    <!--      </ng-template>-->
+    <ng-template ng-notfound-tmp>
+      <div class="ng-option disabled">Nenašli sa žiadne dáta</div>
+    </ng-template>
+    <ng-template ng-loadingtext-tmp>
+      <div class="ng-option disabled">Načítavanie dát</div>
+    </ng-template>
+  </ng-select>
+</div>

@@ -1,0 +1,6 @@
+<mat-form-field>
+  <input matInput [matDatepicker]="datePicker"
+         [max]="maxDate" [min]="minDate" [(ngModel)]="params.value"/>
+  <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+  <mat-datepicker [dateClass]="dateClass" #datePicker></mat-datepicker>
+</mat-form-field>

@@ -1,0 +1,26 @@
+li{
+  display: inline;
+}
+a{
+  color:green;
+  font-size: 40px;
+  text-decoration: none;
+  padding: 10px 20px;
+  text-align: center;
+
+}
+a:hover{
+  background-color: green;
+  color: white;
+  border-radius: 25px 25px;
+  height: 20px;
+}
+.navbar{
+  background-color: white;
+  text-align:right;
+  padding:30px;
+  position:center;
+  transition: all 0.4s;
+}
+
+

@@ -1,0 +1,255 @@
+:host {
+  .ag-theme-alpine {
+    /* bright green, 10% opacity */
+    --ag-selected-row-background-color: rgb(0, 255, 0, 0.1);
+    --ag-odd-row-background-color: #f3f3f3;
+  }
+  .tittle {
+    font-size: 40px;
+    font-style: italic;
+    font-weight: bold;
+    height: 40px;
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-bottom: 60px;
+    background-color: #E9F7EF;
+
+    &.edit {
+      background-color: darkseagreen;
+    }
+  }
+
+  .detail {
+    font-size: 20px;
+    font-style: italic;
+    font-weight: bold;
+    height: 50px;
+    padding: 20px;
+    background-color: #E9F7EF;
+
+    &.edit {
+      background-color: darkseagreen;
+    }
+  }
+
+  .position {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .mat-icon {
+    margin-left: 10px;
+    margin-top: 10px;
+  }
+
+  .add {
+    position: absolute;
+    right: 20px;
+  }
+
+  #filter-text-box {
+    width: 700px;
+    height: 65px;
+    font-size: 20px;
+  }
+
+  #datePicker {
+    width: 300px;
+    height: 65px;
+    font-size: 20px;
+  }
+
+  .--relative-split {
+    position: relative;
+  }
+
+  /* horizontal */
+
+  .--top-split {
+    .split-collapse-expand {
+      z-index: 502;
+      position: absolute;
+      bottom: 5px;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      pointer-events: none;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .--active-border {
+        visibility: hidden;
+        z-index: 0;
+        position: absolute;
+        left: 0;
+        bottom: -5px;
+        width: 100%;
+        height: 1px;
+        background-color: rgb(218, 218, 218);
+        pointer-events: none;
+      }
+    }
+  }
+
+  .detailForm-body {
+    height: 100% !important;
+  }
+
+  .custom-split--grid-main-top {
+    @media (max-width: 967px) {
+      height: calc(100% - 92px);
+    }
+
+    @media (min-width: 968px) {
+      height: calc(100% - 57px);
+    }
+  }
+
+  .grid-wrapper {
+    @media (max-width: 967px) {
+      height: calc(100% - 41px);
+    }
+
+    @media (min-width: 968px) {
+      height: calc(100% - 57px);
+    }
+  }
+
+  .mat-form-field {
+    margin-left: 10px;
+  }
+  ::ng-deep.one .mat-mdc-select-value{
+    color: green;
+  }
+  ::ng-deep.two .mat-mdc-select-value{
+    color: orange;
+  }
+  ::ng-deep.three .mat-mdc-select-value{
+    color: red;
+  }
+  ::ng-deep.none .mat-mdc-select-value{
+    color: black;
+  }
+
+  ::ng-deep.mdc-text-field {
+    background-color: #EAECEE;
+    width: 320px;
+  }
+
+  ::ng-deep.mdc-text-field .mdc-floating-label {
+    color: black;
+  }
+
+  ::ng-deep.mat-mdc-form-field-input-control.mat-mdc-form-field-input-control {
+    color: black;
+  }
+
+  .form-group {
+    margin-left: 8px;
+  }
+
+  .ex-a as-split {
+    overflow: inherit;
+
+    ::ng-deep .as-split-gutter {
+      align-items: flex-end !important;
+      pointer-events: none;
+      background-color: white;
+
+      & > .as-split-gutter-icon {
+        pointer-events: all;
+        transition: all 0.3s;
+        opacity: 0.6;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+
+    &.as-horizontal ::ng-deep .as-split-gutter-icon {
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==') !important;
+      background-color: #E9F7EF;
+      position: center;
+      width: 15px !important;
+      height: 1000px !important;
+      cursor: grab;
+    }
+
+    &.as-vertical ::ng-deep .as-split-gutter-icon {
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==') !important;
+      background-color: #E9F7EF;
+      width: 15px !important;
+      height: 35px !important;
+      cursor: grab;
+    }
+
+    ::ng-deep .as-split-gutter > .as-split-gutter-icon {
+      position: relative;
+      z-index: 2;
+
+      /* Hide the tooltip content by default */
+      &:before,
+      &:after {
+        visibility: hidden;
+        -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)';
+        filter: 'progid: DXImageTransform.Microsoft.Alpha(Opacity=0)';
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Position tooltip above the element */
+      &:before {
+        position: absolute;
+        bottom: 110%;
+        left: 50%;
+        margin-bottom: 5px;
+        margin-left: -80px;
+        padding: 7px;
+        width: 160px;
+        border-radius: 3px;
+        background-color: hsla(0, 0%, 20%, 0.9);
+        color: #fff;
+        content: 'Posunúť detail';
+        text-align: center;
+        font-size: 14px;
+        line-height: 1.2;
+      }
+
+      /* Triangle hack to make tooltip look like a speech bubble */
+      &:after {
+        position: absolute;
+        bottom: 110%;
+        left: 50%;
+        margin-left: -5px;
+        width: 0;
+        border-top: 5px solid hsla(0, 0%, 20%, 0.9);
+        border-right: 5px solid transparent;
+        border-left: 5px solid transparent;
+        content: ' ';
+        font-size: 0;
+        line-height: 0;
+      }
+    }
+
+    /* Show tooltip content on hover */
+    ::ng-deep .as-split-gutter.as-dragged > .as-split-gutter-icon,
+    ::ng-deep .as-split-gutter > .as-split-gutter-icon:hover {
+      opacity: 1;
+
+      &:before,
+      &:after {
+        visibility: visible;
+        -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=100)';
+        filter: 'progid: DXImageTransform.Microsoft.Alpha(Opacity=100)';
+        opacity: 1;
+      }
+    }
+  }
+}
+
+
