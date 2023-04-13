@@ -43,7 +43,8 @@ import {MatSelectModule} from "@angular/material/select";
     GridSelectEditorComponent
   ],
   imports: [
-    BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    // BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    BrowserModule,
     AppRoutingModule,
     AgGridModule,
     HttpClientModule,
