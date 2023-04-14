@@ -6,6 +6,7 @@ import {Unit} from "../../model/unit";
 import {Item} from "../../model/item";
 import {AgGridAngular} from "ag-grid-angular";
 import {GridSelectEditorComponent} from "../../cell-renderers/grid-select-editor/grid-select-editor.component";
+import {AppService} from "../../app.service";
 
 @Component({
   selector: 'app-item',
@@ -38,7 +39,7 @@ export class ItemComponent implements OnInit {
   newRowIndex = -1;
   deletedRows: Item [] = [];
 
-  constructor(private service: InvoiceService) {
+  constructor(private service: AppService) {
   }
 
   ngOnInit(): void {

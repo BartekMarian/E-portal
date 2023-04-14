@@ -13,13 +13,13 @@ export class InvoiceService {
     private http: HttpClient) {
   }
 
-  listInvoices(): Observable< Invoice[]> {
-    return this.http.get<Invoice[]>('api/invoices');
-  }
-  listUnits(): Observable< Unit[]> {
-    return this.http.get<Unit[]>('api/units');
-  }
-  saveInvoice(dto: Invoice): Observable<Invoice> {
-    return this.http.put<Invoice>('api/invoice', dto);
-  }
+  // listInvoices(): Observable< Invoice[]> {
+  //   return this.http.get<Invoice[]>('api/invoices');
+  // }
+  // listUnits(): Observable< Unit[]> {
+  //   return this.http.get<Unit[]>('api/units');
+  // }
+  // saveInvoice(dto: Invoice): Observable<Invoice> {
+  //   return this.http.put<Invoice>('api/invoice', dto);
+  // }
 }

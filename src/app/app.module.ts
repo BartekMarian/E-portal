@@ -33,6 +33,10 @@ import { ItemComponent } from './invoices/item/item.component';
 import {GridDateEditorComponent} from "./cell-renderers/grid-date-editor/grid-date-editor.component";
 import {GridSelectEditorComponent} from "./cell-renderers/grid-select-editor/grid-select-editor.component";
 import {MatSelectModule} from "@angular/material/select";
+import {GeneratePdfButtonComponent} from "./cell-renderers/generate-pdf-button/generate-pdf-button.component";
+import {LoggerModule, NgxLoggerLevel} from "ngx-logger";
+import {environment} from "../enviroments/enviroment";
+import {matSnackBarAnimations, MatSnackBarModule} from "@angular/material/snack-bar";
 
 @NgModule({
   declarations: [
@@ -40,7 +44,8 @@ import {MatSelectModule} from "@angular/material/select";
     InvoicesComponent,
     ItemComponent,
     GridDateEditorComponent,
-    GridSelectEditorComponent
+    GridSelectEditorComponent,
+    GeneratePdfButtonComponent
   ],
   imports: [
     // BrowserModule.withServerTransition({ appId: 'serverApp' }),
@@ -72,6 +77,8 @@ import {MatSelectModule} from "@angular/material/select";
     NgSelectModule,
     MatNativeDateModule,
     MatSelectModule,
+    MatSnackBarModule,
+    LoggerModule.forRoot(environment.logging),
   ],
   providers: [InvoiceService],
   bootstrap: [AppComponent]

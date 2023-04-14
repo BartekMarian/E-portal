@@ -1,25 +1,21 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  EventEmitter,
-  OnInit,
-  Output,
-  ViewChild,
-  ViewEncapsulation
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {AgGridAngular} from "ag-grid-angular";
 import {Invoice} from "../model/invoice";
 import {InvoiceService} from "./invoice.service";
-import {CellClassParams, ColDef, GridReadyEvent, SideBarDef} from "ag-grid-community";
-import {MatDatepicker, MatDatepickerInputEvent} from "@angular/material/datepicker";
+import {ColDef, GridReadyEvent, SideBarDef} from "ag-grid-community";
+import {MatDatepickerInputEvent} from "@angular/material/datepicker";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {combineLatest, map, Subject} from "rxjs";
 import {SplitAreaDirective, SplitComponent} from "angular-split";
-import {Unit} from "../model/unit";
-import {GridDateEditorComponent} from "../cell-renderers/grid-date-editor/grid-date-editor.component";
 import {ItemComponent} from "./item/item.component";
-import {GridSelectEditorComponent} from "../cell-renderers/grid-select-editor/grid-select-editor.component";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+import {GeneratePdfButtonComponent} from "../cell-renderers/generate-pdf-button/generate-pdf-button.component";
+import {AppService} from "../app.service";
+import {NGXLogger} from "ngx-logger";
+import {MatSnackBar} from "@angular/material/snack-bar";
+
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 @Component({
 
@@ -64,10 +60,11 @@ export class InvoicesComponent implements OnInit {
   statusColor: string
 
 
-  constructor(private service: InvoiceService,
-              private fb: FormBuilder,) {
+  constructor(private service: AppService,
+              private fb: FormBuilder,
+              private logger: NGXLogger,
+              private _snackBar: MatSnackBar) {
     this.createFormGroup();
-
   }
 
 
@@ -80,10 +77,12 @@ export class InvoicesComponent implements OnInit {
 
   columnDefs = [
     {
+      width:80,
+      cellRenderer: GeneratePdfButtonComponent
+    },
+    {
       headerName: 'Číslo Faktúry',
       field: 'invoiceNumber',
-      cellEditor: 'agTextCellEditor',
-      editable: () => this.editMode
     },
     {headerName: 'Dodávateľ', field: 'supplierId'},
     {headerName: 'Odberateľ', field: 'customerId'},
@@ -108,11 +107,13 @@ export class InvoicesComponent implements OnInit {
     {headerName: 'DPH', field: 'vat'},
     {headerName: 'Odberateľská zľava', field: 'discount'},
     {headerName: 'Spolu s DPH', field: 'total'},
-    {headerName: 'Mena', field: 'currencyId',
+    {
+      headerName: 'Mena', field: 'currencyId',
       valueGetter: (params: any) => {
         const t = this.currencies.find(s => s.id === params.data?.currencyId);
         return t ? t.name : null;
-      },},
+      },
+    },
     {headerName: 'Vystavená', field: 'created', filter: 'agDateColumnFilter'},
     {headerName: 'Upravená', field: 'updated', type: 'Date', filter: 'agDateColumnFilter', cellEditor: 'selectEditor'},
     {headerName: 'Dátum splatnosti', field: 'dateOfPayment', type: 'Date', filter: 'agDateColumnFilter',},
@@ -137,10 +138,11 @@ export class InvoicesComponent implements OnInit {
   }
 
   loadData() {
-    this.service.listInvoices().subscribe((data: Invoice []) => {
+    this.service.listInvoices().pipe().subscribe((data: Invoice []) => {
       this.rowData = data;
       this.agGrid.gridOptions?.api.sizeColumnsToFit()
     });
+
   }
 
   createFormGroup() {
@@ -172,6 +174,7 @@ export class InvoicesComponent implements OnInit {
 
   onGridReady(params: GridReadyEvent) {
     this.agGrid.api = params.api;
+    console.log(params)
   }
 
   onSingleRowSelected() {
@@ -209,7 +212,19 @@ export class InvoicesComponent implements OnInit {
     if (this.formGroup.invalid) {
       return
     }
-    this.service.saveInvoice(this.formGroup.getRawValue());
+    this.service.saveInvoice(this.formGroup.getRawValue()).subscribe(res =>{
+      if (res){
+        this.loadData()
+        this.editMode = false
+      }
+      // const objIndex = this.rowData.findIndex(obj => obj.id === res.id);
+      // if (objIndex !== -1) {
+      //   this.rowData[objIndex] = res;
+      // }
+
+      // this.singleRow = null;
+      // this.logger.debug("Response status: ", res.status)
+    });
   }
 
   cancelClick() {
@@ -248,6 +263,10 @@ export class InvoicesComponent implements OnInit {
 
   edit() {
     this.editMode = true
+  }
+
+  openSnackBar(message: string, action: string) {
+    this._snackBar.open(message, action);
   }
 
   filterPassed(data: any) {
