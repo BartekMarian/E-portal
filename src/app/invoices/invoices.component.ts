@@ -77,7 +77,7 @@ export class InvoicesComponent implements OnInit {
 
   columnDefs = [
     {
-      width:80,
+      width:100,
       cellRenderer: GeneratePdfButtonComponent
     },
     {
@@ -140,7 +140,8 @@ export class InvoicesComponent implements OnInit {
   loadData() {
     this.service.listInvoices().pipe().subscribe((data: Invoice []) => {
       this.rowData = data;
-      this.agGrid.gridOptions?.api.sizeColumnsToFit()
+      this.agGrid.gridOptions?.api.sizeColumnsToFit();
+      this.agGrid.gridOptions.rowHeight = 42;
     });
 
   }
