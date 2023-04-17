@@ -1,11 +1,19 @@
-import {ChangeDetectionStrategy, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {AgGridAngular} from "ag-grid-angular";
 import {Invoice} from "../model/invoice";
-import {InvoiceService} from "./invoice.service";
 import {ColDef, GridReadyEvent, SideBarDef} from "ag-grid-community";
 import {MatDatepickerInputEvent} from "@angular/material/datepicker";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {combineLatest, map, Subject} from "rxjs";
+import {combineLatest, filter, map, Subject} from "rxjs";
 import {SplitAreaDirective, SplitComponent} from "angular-split";
 import {ItemComponent} from "./item/item.component";
 import pdfMake from "pdfmake/build/pdfmake";
@@ -13,7 +21,10 @@ import pdfFonts from "pdfmake/build/vfs_fonts";
 import {GeneratePdfButtonComponent} from "../cell-renderers/generate-pdf-button/generate-pdf-button.component";
 import {AppService} from "../app.service";
 import {NGXLogger} from "ngx-logger";
-import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition} from "@angular/material/snack-bar";
+import * as moment from "moment";
+import {NavigationEnd, Router, RouterEvent} from "@angular/router";
+import {Customer} from "../model/customer";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -22,17 +33,19 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
   selector: 'app-invoices',
   templateUrl: './invoices.component.html',
   styleUrls: ['./invoices.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InvoicesComponent implements OnInit {
+export class InvoicesComponent implements OnInit, OnDestroy {
 
   @ViewChild('split') split: SplitComponent
   @ViewChild('area1') area1: SplitAreaDirective
   @ViewChild('area2') area2: SplitAreaDirective
-  @ViewChild('itemComponent') itemComponent: ItemComponent
+  @ViewChild('itemComponent') itemComponent: ItemComponent;
 
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
   @ViewChild('gridWrapper') agElm: ElementRef;
+
+  horizontalPosition: MatSnackBarHorizontalPosition = 'start';
+  verticalPosition: MatSnackBarVerticalPosition = 'bottom';
 
   @Output()
   reloadData = new EventEmitter();
@@ -41,11 +54,14 @@ export class InvoicesComponent implements OnInit {
     toolPanels: ['columns'],
   };
   public rowGroupPanelShow: 'always' | 'onlyWhenGrouping' | 'never' = 'always';
+  public destroyed = new Subject<any>();
 
   editMode: boolean = false;
   rowData: Invoice [] = [];
+  customers: Customer [] = [];
   formGroup: FormGroup;
   singleRow: Invoice;
+  dateChange$: any;
   statuses: any [] = [{id: 1, name: "Uhradené"}, {id: 2, name: "Čaká na úhradu"}, {id: 3, name: "Po splatnosti"}]
   currencies: any [] = [{id: 1, name: "Euro"}, {id: 2, name: "Dolár"}, {id: 3, name: "CZK"}, {id: 4, name: "PLZ"}]
   startDatePicker = new Subject<MatDatepickerInputEvent<any>>();
@@ -59,12 +75,16 @@ export class InvoicesComponent implements OnInit {
   }
   statusColor: string
 
-
   constructor(private service: AppService,
               private fb: FormBuilder,
               private logger: NGXLogger,
-              private _snackBar: MatSnackBar) {
+              private _snackBar: MatSnackBar,
+              private router: Router,
+  ) {
     this.createFormGroup();
+    this.service.listCustomers().pipe().subscribe(c=>{
+      this.customers = c;
+    })
   }
 
 
@@ -77,7 +97,7 @@ export class InvoicesComponent implements OnInit {
 
   columnDefs = [
     {
-      width:100,
+      width: 100,
       cellRenderer: GeneratePdfButtonComponent
     },
     {
@@ -85,7 +105,7 @@ export class InvoicesComponent implements OnInit {
       field: 'invoiceNumber',
     },
     {headerName: 'Dodávateľ', field: 'supplierId'},
-    {headerName: 'Odberateľ', field: 'customerId'},
+    {headerName: 'Odberateľ', field: 'customer.customerName'},
     {
       headerName: 'Stav úhrady', field: 'status',
       valueGetter: (params: any) => {
@@ -103,47 +123,56 @@ export class InvoicesComponent implements OnInit {
         return null;
       }
     },
-    {headerName: 'bez DPH', field: 'subtotal'},
-    {headerName: 'DPH', field: 'vat'},
-    {headerName: 'Odberateľská zľava', field: 'discount'},
-    {headerName: 'Spolu s DPH', field: 'total'},
+    {headerName: 'bez DPH', field: 'subtotal', valueFormatter: this.numberFormatter},
+    {headerName: 'DPH', field: 'vat', valueFormatter: this.numberFormatter},
+    {headerName: 'Zľava(%)', field: 'discount'},
+    {headerName: 'Spolu s DPH (€)', field: 'total', valueFormatter: this.numberFormatter},
     {
-      headerName: 'Mena', field: 'currencyId',
+      headerName: 'Vystavená', field: 'created', filter: 'agDateColumnFilter',
       valueGetter: (params: any) => {
-        const t = this.currencies.find(s => s.id === params.data?.currencyId);
-        return t ? t.name : null;
-      },
+        return moment(params.data.dateOfPayment).format('DD.MM.YYYY');
+      }
     },
-    {headerName: 'Vystavená', field: 'created', filter: 'agDateColumnFilter'},
-    {headerName: 'Upravená', field: 'updated', type: 'Date', filter: 'agDateColumnFilter', cellEditor: 'selectEditor'},
-    {headerName: 'Dátum splatnosti', field: 'dateOfPayment', type: 'Date', filter: 'agDateColumnFilter',},
+    {
+      headerName: 'Dátum splatnosti', field: 'dateOfPayment', filter: 'agDateColumnFilter',
+      valueGetter: (params: any) => {
+        return moment(params.data.dateOfPayment).format('DD.MM.YYYY');
+      }
+    },
     {headerName: 'Spôsob platby', field: 'paymentId'},
     {headerName: 'Spôsob doručenia', field: 'deliveryId'},
   ];
 
+  externalFilterPass(node: any) {
+    return !(node.data.created >= this.formGroup.get('rangeStart').value && node.data.created <= this.formGroup.get('rangeEnd').value);
+  }
+
+  numberFormatter(params) {
+    return Number(params.value.toFixed(2))
+  }
+
   ngOnInit(): void {
-    this.loadData();
-    const dateChange$ = combineLatest([this.startDatePicker, this.endDatePicker]).pipe(
+    this.dateChange$ = combineLatest([this.startDatePicker, this.endDatePicker]).pipe(
       map(([start, end]) => ({
         start: start,
         end: end
       }))
     );
-    dateChange$.subscribe((data) => {
+    this.dateChange$.subscribe((data) => {
       if (data.start.value && data.end.value) {
-        //range
+        this.rowData.filter(f => new Date(f.created) >= data.start.value && new Date(f.created) <= data.end.value)
       }
     });
-
   }
 
   loadData() {
     this.service.listInvoices().pipe().subscribe((data: Invoice []) => {
       this.rowData = data;
-      this.agGrid.gridOptions?.api.sizeColumnsToFit();
       this.agGrid.gridOptions.rowHeight = 42;
+      this.agGrid.gridOptions = {
+        doesExternalFilterPass: this.externalFilterPass,
+      }
     });
-
   }
 
   createFormGroup() {
@@ -151,20 +180,35 @@ export class InvoicesComponent implements OnInit {
       id: this.fb.control(null),
       invoiceNumber: this.fb.control(null, Validators.required),
       supplierId: this.fb.control(null),
-      customerId: this.fb.control(null),
       status: this.fb.control(null),
       discount: this.fb.control(null),
       currencyId: this.fb.control(null),
       subtotal: this.fb.control(null),
       vat: this.fb.control(null),
       total: this.fb.control(null),
-
+      customer: this.fb.group({
+        id: this.fb.control(null),
+        customerName: this.fb.control(null),
+      }),
       rangeStart: this.fb.control(null),
       rangeEnd: this.fb.control(null),
     })
+
     this.formGroup.get('status').valueChanges.subscribe(status => {
       this.changeStatusColor(status);
+    });
+    this.formGroup.get('subtotal').valueChanges.subscribe(subtotal => {
+      this.countAmountWithDiscount(subtotal);
     })
+  }
+
+  countAmountWithDiscount(subtotal: number) {
+    let discount = this.formGroup.get('discount').value;
+    if (discount != null && discount > 0) {
+      subtotal = subtotal * (1 - discount / 100)
+    }
+    this.formGroup.get('vat').setValue(((subtotal / 100) * 20).toFixed(2));
+    this.formGroup.get('total').setValue((subtotal * 1.2).toFixed(2));
   }
 
   onFilterTextBoxChanged() {
@@ -173,14 +217,9 @@ export class InvoicesComponent implements OnInit {
     );
   }
 
-  onGridReady(params: GridReadyEvent) {
-    this.agGrid.api = params.api;
-    console.log(params)
-  }
-
   onSingleRowSelected() {
     this.singleRow = this.agGrid.api.getSelectedRows()[0];
-    this.changeStatusColor(this.singleRow.status);
+    this.changeStatusColor(this.singleRow?.status);
     this.formGroup.patchValue(this.singleRow);
     this.formGroup.disable();
     this.editMode = false;
@@ -206,6 +245,8 @@ export class InvoicesComponent implements OnInit {
   repairClick() {
     this.editMode = true;
     this.formGroup.enable();
+    this.formGroup.get('vat').disable();
+    this.formGroup.get('total').disable();
   }
 
   saveClick() {
@@ -213,18 +254,24 @@ export class InvoicesComponent implements OnInit {
     if (this.formGroup.invalid) {
       return
     }
-    this.service.saveInvoice(this.formGroup.getRawValue()).subscribe(res =>{
-      if (res){
+    let data = this.formGroup.getRawValue();
+    console.log(data)
+    data.items =  this.itemComponent.save();
+    console.log(data.items)
+    this.service.saveInvoice(data).subscribe(res => {
+      if (res) {
+        this.singleRow = null;
         this.loadData()
         this.editMode = false
+        this._snackBar.open("Faktúra bola úspešne upravená", "", {
+          duration: 3000,
+          panelClass: 'green-snackbar',
+          horizontalPosition: this.horizontalPosition,
+          verticalPosition: this.verticalPosition,
+        });
       }
-      // const objIndex = this.rowData.findIndex(obj => obj.id === res.id);
-      // if (objIndex !== -1) {
-      //   this.rowData[objIndex] = res;
-      // }
 
-      // this.singleRow = null;
-      // this.logger.debug("Response status: ", res.status)
+      this.logger.debug("Response status: ", res.status)
     });
   }
 
@@ -254,25 +301,25 @@ export class InvoicesComponent implements OnInit {
     }
   }
 
-  cancel() {
-    this.editMode = false
+  isExternalFilterPresent() {
+    return true;
   }
 
-  save() {
-    this.editMode = false
-  }
-
-  edit() {
-    this.editMode = true
-  }
-
-  openSnackBar(message: string, action: string) {
-    this._snackBar.open(message, action);
-  }
-
-  filterPassed(data: any) {
+  filterPassed(start: any, end: any) {
     let passed = true;
-    console.log(data)
+    if (start && end) {
+      // console.log(start + "picker start" + end + "picker end")
+      passed = start < this.rowData.map(m => m.created) && end > this.rowData.map(m => m.created);
+      if (!passed) {
+        return passed;
+      }
+    }
+    return passed
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed.next(undefined);
+    this.destroyed.complete();
   }
 
 }

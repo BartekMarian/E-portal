@@ -1,6 +1,82 @@
 @import "~ag-grid-community/styles/ag-grid.css";
 @import "~ag-grid-community/styles/ag-theme-alpine.css";
-
 @import "../node_modules/bootstrap/scss/bootstrap";
+
+
+.mat-expansion-panel {
+  background-color: #D7F2BA;
+}
+
+.mat-toolbar {
+  background: #9CC69B
+}
+
+.span {
+  margin-left: 15px;
+}
+
+.tittle{
+  font-size: 30px;
+  font-style: italic;
+  font-weight: bold;
+  height: 40px;
+  padding-top: 25px;
+  padding-left: 30px;
+  padding-bottom: 50px;
+  background-color: #D7F2BA;
+
+  &.edit {
+    background-color: #79B4A9;
+  }
+}
+
+.detail {
+  font-size: 20px;
+  font-style: italic;
+  font-weight: bold;
+  height: 50px;
+  padding: 20px;
+  background-color: #D7F2BA;
+
+  &.edit {
+    background-color: #79B4A9;
+  }
+}
+.detailForm-body {
+  height: 100% !important;
+}
+
+.custom-split--grid-main-top {
+  @media (max-width: 967px) {
+    height: calc(100% - 92px);
+  }
+
+  @media (min-width: 968px) {
+    height: calc(100% - 57px);
+  }
+}
+
+.grid-wrapper {
+  @media (max-width: 967px) {
+    height: calc(100% - 41px);
+  }
+
+  @media (min-width: 968px) {
+    height: calc(100% - 57px);
+  }
+}
+.mat-form-field {
+  margin-left: 10px;
+}
+#filter-text-box {
+  width: 700px;
+  height: 65px;
+  font-size: 20px;
+}
+.add {
+  position: absolute;
+  right: 20px;
+}
+
 
 

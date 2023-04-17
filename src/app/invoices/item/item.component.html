@@ -12,7 +12,10 @@
                  [rowGroupPanelShow]="rowGroupPanelShow"
                  (gridReady)="onGridReady($event)"
                  [columnDefs]="columnDefs"
+                 [defaultColDef]="defaultColDef"
                  [paginationAutoPageSize]="true"
+                 [singleClickEdit]="true"
+                 [stopEditingWhenCellsLoseFocus]="true"
                  (cellValueChanged)="onCellValueChanged($event)"
                  [pagination]="true">
 </ag-grid-angular>

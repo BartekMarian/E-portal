@@ -1,35 +1,14 @@
 :host {
   .ag-theme-alpine {
+    height: 500px !important;
     /* bright green, 10% opacity */
     --ag-selected-row-background-color: rgb(0, 255, 0, 0.1);
     --ag-odd-row-background-color: #f3f3f3;
   }
-  .tittle {
-    font-size: 40px;
-    font-style: italic;
-    font-weight: bold;
-    height: 40px;
-    padding-top: 30px;
-    padding-left: 30px;
-    padding-bottom: 60px;
-    background-color: #E9F7EF;
 
-    &.edit {
-      background-color: darkseagreen;
-    }
-  }
-
-  .detail {
-    font-size: 20px;
-    font-style: italic;
-    font-weight: bold;
-    height: 50px;
-    padding: 20px;
-    background-color: #E9F7EF;
-
-    &.edit {
-      background-color: darkseagreen;
-    }
+  .mat-icon {
+    margin-left: 10px;
+    margin-top: 10px;
   }
 
   .position {
@@ -39,26 +18,15 @@
     flex-wrap: wrap;
   }
 
-  .mat-icon {
-    margin-left: 10px;
-    margin-top: 10px;
-  }
-
-  .add {
-    position: absolute;
-    right: 20px;
-  }
-
-  #filter-text-box {
-    width: 700px;
-    height: 65px;
-    font-size: 20px;
-  }
-
   #datePicker {
-    width: 300px;
-    height: 65px;
-    font-size: 20px;
+    position: absolute;
+    width: 400px;
+    height: 89px;
+    font-size: 14px;
+  }
+
+  .mat-datepicker-toggle {
+    color: darkseagreen;
   }
 
   .--relative-split {
@@ -95,43 +63,20 @@
     }
   }
 
-  .detailForm-body {
-    height: 100% !important;
-  }
 
-  .custom-split--grid-main-top {
-    @media (max-width: 967px) {
-      height: calc(100% - 92px);
-    }
-
-    @media (min-width: 968px) {
-      height: calc(100% - 57px);
-    }
-  }
-
-  .grid-wrapper {
-    @media (max-width: 967px) {
-      height: calc(100% - 41px);
-    }
-
-    @media (min-width: 968px) {
-      height: calc(100% - 57px);
-    }
-  }
-
-  .mat-form-field {
-    margin-left: 10px;
-  }
-  ::ng-deep.one .mat-mdc-select-value{
+  ::ng-deep.one .mat-mdc-select-value {
     color: green;
   }
-  ::ng-deep.two .mat-mdc-select-value{
+
+  ::ng-deep.two .mat-mdc-select-value {
     color: orange;
   }
-  ::ng-deep.three .mat-mdc-select-value{
+
+  ::ng-deep.three .mat-mdc-select-value {
     color: red;
   }
-  ::ng-deep.none .mat-mdc-select-value{
+
+  ::ng-deep.none .mat-mdc-select-value {
     color: black;
   }
 
@@ -148,6 +93,16 @@
     color: black;
   }
 
+  ::ng-deep.mat-mdc-snack-bar-container{
+    background-color: rgb(65, 252, 134);
+    color: white;
+  }
+
+  ::ng-deep.red-snackbar .mat-mdc-snack-bar-container {
+    background: #F44336;
+    color: white;
+  }
+
   .form-group {
     margin-left: 8px;
   }
@@ -158,8 +113,6 @@
     ::ng-deep .as-split-gutter {
       align-items: flex-end !important;
       pointer-events: none;
-      background-color: white;
-
       & > .as-split-gutter-icon {
         pointer-events: all;
         transition: all 0.3s;
@@ -173,7 +126,7 @@
 
     &.as-horizontal ::ng-deep .as-split-gutter-icon {
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==') !important;
-      background-color: #E9F7EF;
+      background-color: #D7F2BA;
       position: center;
       width: 15px !important;
       height: 1000px !important;
@@ -182,11 +135,13 @@
 
     &.as-vertical ::ng-deep .as-split-gutter-icon {
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==') !important;
-      background-color: #E9F7EF;
+      background-color: #D7F2BA;
+      position: center;
       width: 15px !important;
-      height: 35px !important;
+      height: 15px !important;
       cursor: grab;
     }
+
 
     ::ng-deep .as-split-gutter > .as-split-gutter-icon {
       position: relative;

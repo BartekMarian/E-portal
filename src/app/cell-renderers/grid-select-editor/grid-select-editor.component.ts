@@ -1,89 +1,50 @@
-import {Component, ElementRef, NgZone, ViewChild} from '@angular/core';
+import {Component, ElementRef, NgZone, ViewChild, ViewContainerRef} from '@angular/core';
 import {ICellEditorParams} from "ag-grid-community";
-import {AgEditorComponent} from "ag-grid-angular";
+import {AgEditorComponent, ICellEditorAngularComp} from "ag-grid-angular";
 
 @Component({
   selector: 'app-grid-select-editor',
   templateUrl: './grid-select-editor.component.html',
   styleUrls: ['./grid-select-editor.component.scss']
 })
-export class GridSelectEditorComponent implements AgEditorComponent {
+export class GridSelectEditorComponent implements ICellEditorAngularComp  {
 
-  @ViewChild('input') input: ElementRef;
-  params: ICellEditorParams;
-  userSearchValue: string = '';
-  _items = [];
-  itemFunc: boolean;
-  searchKey: string = null;
+  private params!: ICellEditorParams & { items: string[] };
 
-  multiple: boolean;
-  clearable: boolean;
-  searchable: boolean;
-  codebook: boolean;
-  hideSelected: boolean;
-  tagText: string;
-  tagFunction: any;
+  public items!: any[];
+  public selectedValue!: string;
+  private selectedIndex!: number;
 
+  @ViewChild("group", { read: ViewContainerRef })
+  public group!: ViewContainerRef;
 
-  value: any = undefined;
+  agInit(params: ICellEditorParams & { items: string[] }): void {
+    this.params = params;
 
-  paramsReady = false;
+    this.selectedValue = this.params.value;
 
-  appendTo: string;
+    this.items = this.params.items;
 
-  constructor(private _ngZone: NgZone) {
+    this.selectedIndex = this.items.findIndex(item => {
+      return item.label === this.params.value;
+    });
+    console.log(this.selectedIndex)
+  }
+
+  ngAfterViewInit() {
+    this.selectFavouriteVegetableBasedOnSelectedIndex();
+  }
+
+  private selectFavouriteVegetableBasedOnSelectedIndex() {
+    this.selectedValue = this.items[this.selectedIndex];
+  }
+
+  getValue() {
+    return this.selectedValue;
   }
 
   isPopup(): boolean {
-    return false;
-  }
-
-  isCancelBeforeStart(): boolean {
-    return false;
-  }
-
-  isCancelAfterEnd(): boolean {
-    return false;
-  }
-
-  agInit(params: any): void {
-    this.params = params;
-    this.multiple = this.params['multiple'] || false;
-    this.clearable = this.params['clearable'] || false;
-    this.searchable = this.params['searchable'] || false;
-    this.tagText = this.params['tagText'] || false;
-    this.tagFunction = this.params['tagFunction'] || null;
-    this.hideSelected = this.params['hideSelected'] || false;
-    this.itemFunc = this.params['itemFunction'] || false;
-    this.codebook = this.params['codebook'] || false;
-    this.searchKey = this.params['searchKey'] || null;
-    this.appendTo = this.params['appendTo'] || 'body';
-
-
-    //params.context.parentComponent
-    if (this.itemFunc) {
-      this._items = params.context.componentParent.getItems(params.data);
-    } else {
-      this._items = this.params['items'] || [];
-    }
-
-    let oldValue = this.params.data[this.params.colDef.field];
-    if (oldValue && this._items.findIndex(f => f.value === oldValue) === -1) {
-      //zrusenie neplatnej hodnoty
-      this.value = null;
-    } else {
-      this.value = this.params.data[this.params.colDef.field];
-    }
-
-    this.paramsReady = true;
-  }
-
-  getValue(): string {
-    return this.value;
-  }
-
-  valid(): boolean {
-    return true
+    return true;
   }
 
 }

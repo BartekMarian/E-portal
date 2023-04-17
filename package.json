@@ -32,6 +32,7 @@
     "angular-split": "^15.0.0",
     "bootstrap": "^5.2.3",
     "express": "^4.15.2",
+    "moment": "^2.29.4",
     "ngx-logger": "^5.0.12",
     "pdfmake": "^0.2.7",
     "rxjs": "~7.8.0",

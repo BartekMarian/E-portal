@@ -4,6 +4,7 @@ import {map, Observable} from "rxjs";
 import {Invoice} from "./model/invoice";
 import {Unit} from "./model/unit";
 import {NGXLogger} from "ngx-logger";
+import {Customer} from "./model/customer";
 
 
 @Injectable({
@@ -30,5 +31,9 @@ export class AppService {
       this.logger.debug("Received Response: ", res)
         return res
     }));
+  }
+
+  listCustomers(): Observable< Customer[]> {
+    return this.http.get<Customer[]>('api/customers');
   }
 }

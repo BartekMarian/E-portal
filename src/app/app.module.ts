@@ -13,9 +13,9 @@ import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatTreeModule} from "@angular/material/tree";
-import {MatDatepicker, MatDatepickerModule} from "@angular/material/datepicker";
+import {MatDatepickerModule} from "@angular/material/datepicker";
 import {AngularSplitModule} from "angular-split";
-import {MatFormField, MatFormFieldModule} from "@angular/material/form-field";
+import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatMenuModule} from "@angular/material/menu";
@@ -29,14 +29,16 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatButtonModule} from "@angular/material/button";
 import {MatRadioModule} from "@angular/material/radio";
 import {MatNativeDateModule} from "@angular/material/core";
-import { ItemComponent } from './invoices/item/item.component';
+import {ItemComponent} from './invoices/item/item.component';
 import {GridDateEditorComponent} from "./cell-renderers/grid-date-editor/grid-date-editor.component";
 import {GridSelectEditorComponent} from "./cell-renderers/grid-select-editor/grid-select-editor.component";
 import {MatSelectModule} from "@angular/material/select";
 import {GeneratePdfButtonComponent} from "./cell-renderers/generate-pdf-button/generate-pdf-button.component";
-import {LoggerModule, NgxLoggerLevel} from "ngx-logger";
+import {LoggerModule} from "ngx-logger";
 import {environment} from "../enviroments/enviroment";
-import {matSnackBarAnimations, MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {RouterModule} from "@angular/router";
+import { CustomersComponent } from './customers/customers/customers.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +47,8 @@ import {matSnackBarAnimations, MatSnackBarModule} from "@angular/material/snack-
     ItemComponent,
     GridDateEditorComponent,
     GridSelectEditorComponent,
-    GeneratePdfButtonComponent
+    GeneratePdfButtonComponent,
+    CustomersComponent,
   ],
   imports: [
     // BrowserModule.withServerTransition({ appId: 'serverApp' }),
@@ -78,9 +81,14 @@ import {matSnackBarAnimations, MatSnackBarModule} from "@angular/material/snack-
     MatNativeDateModule,
     MatSelectModule,
     MatSnackBarModule,
+    MatSidenavModule,
+    RouterModule,
     LoggerModule.forRoot(environment.logging),
   ],
-  providers: [InvoiceService],
+  providers: [
+    InvoiceService,
+  ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

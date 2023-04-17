@@ -11,7 +11,7 @@
 
     <mat-form-field appearance="fill" id="datePicker">
       <mat-label>Vyberte obdobie</mat-label>
-      <mat-date-range-input [formGroup]="formGroup" [rangePicker]="picker" style="width: 400px">
+      <mat-date-range-input [formGroup]="formGroup" [rangePicker]="picker">
         <input matStartDate formControlName="rangeStart" placeholder="Od" (dateChange)="startDatePicker.next($event)">
         <input matEndDate formControlName="rangeEnd" placeholder="Do" (dateChange)="endDatePicker.next($event)">
       </mat-date-range-input>
@@ -23,14 +23,13 @@
     <div class="split-example ex-a">
       <as-split unit="percent"
                 [direction]="direction"
-                gutterSize="35"
+                gutterSize="105"
                 (dragEnd)="dragEnd('percent', $event)"
                 #split="asSplit">
         <as-split-area #area1="asSplitArea" [size]="50">
           <div class="custom-split--grid-main-top">
             <div class="grid-wrapper">
               <ag-grid-angular
-                domLayout='autoHeight'
                 class="ag-theme-alpine"
                 rowSelection="single"
                 (selectionChanged)="onSingleRowSelected()"
@@ -39,7 +38,7 @@
                 [sideBar]="sideBar"
                 [defaultColDef]="defaultColDef"
                 [rowGroupPanelShow]="rowGroupPanelShow"
-                (gridReady)="onGridReady($event)"
+                (gridReady)="loadData()"
                 [columnDefs]="columnDefs"
                 [paginationAutoPageSize]="true"
                 [pagination]="true">
@@ -78,15 +77,16 @@
                          placeholder="Dodávateľ"/>
                 </mat-form-field>
 
-                <mat-form-field class="mat-form-field" matTooltip="Odberateľ">
-                  <mat-label>Odberateľ</mat-label>
-                  <input matInput
-                         formControlName="customerId"
-                         placeholder="Odberateľ"/>
+                <ng-container formGroupName="customer">
+                  <mat-form-field class="mat-form-field" matTooltip="Odberateľ">
+                    <mat-label>Odberateľ</mat-label>
+                  <mat-select formControlName="id" class="none">
+                    <mat-option *ngFor="let customer of customers" [value]="customer.id">{{customer.customerName}}</mat-option>
+                  </mat-select>
                 </mat-form-field>
+                </ng-container>
 
-
-                <mat-form-field class="mat-form-field" matTooltip="Stav úhrady" >
+                <mat-form-field class="mat-form-field" matTooltip="Stav úhrady">
                   <mat-label>Stav úhrady</mat-label>
                   <mat-select formControlName="status" class="{{statusColor}} ">
                     <mat-option *ngFor="let status of statuses" [value]="status.id">{{status.name}}</mat-option>
@@ -100,16 +100,17 @@
                   </mat-select>
                 </mat-form-field>
 
-                <mat-form-field class="mat-form-field" matTooltip="Odberateľská zľava">
-                  <mat-label>Odberateľská zľava</mat-label>
+                <mat-form-field class="mat-form-field" matTooltip="Odberateľská zľava (%)">
+                  <mat-label>Odberateľská zľava (%)</mat-label>
                   <input matInput
                          formControlName="discount"
-                         placeholder="Odberateľská zľava"/>
+                         placeholder="Zľava(%)"/>
                 </mat-form-field>
 
                 <mat-form-field class="mat-form-field" matTooltip="bez DPH">
                   <mat-label>bez DPH</mat-label>
                   <input matInput
+                         type="number"
                          formControlName="subtotal"
                          placeholder="bez DPH"/>
                 </mat-form-field>
@@ -117,6 +118,7 @@
                 <mat-form-field class="mat-form-field" matTooltip="DPH">
                   <mat-label>DPH</mat-label>
                   <input matInput
+                         type="number"
                          formControlName="vat"
                          placeholder="DPH"/>
                 </mat-form-field>
@@ -124,8 +126,9 @@
                 <mat-form-field class="mat-form-field" matTooltip="Spolu s DPH">
                   <mat-label>Spolu s DPH</mat-label>
                   <input matInput
+                         type="number"
                          formControlName="total"
-                         placeholder="Spolu s DPH"/>
+                         placeholder="Spolu s DPH (€)"/>
                 </mat-form-field>
               </div>
             </form>
@@ -133,7 +136,7 @@
           <ng-container>
             <div class="detail" [ngClass]="(editMode)? 'detail edit' : ''">Položky faktúry
               : {{singleRow.invoiceNumber}}  </div>
-            <app-item [rowData]="singleRow" [editMode]="editMode"></app-item>
+            <app-item #itemComponent [rowData]="singleRow" [editMode]="editMode"></app-item>
           </ng-container>
         </as-split-area>
       </as-split>

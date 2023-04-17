@@ -1,4 +1,5 @@
 import {Item} from "./item";
+import {Customer} from "./customer";
 
 export class Invoice {
   id: number;
@@ -11,10 +12,10 @@ export class Invoice {
   paymentId: number;
   dateOfPayment: Date;
   supplierId: number;
-  customerId: number;
   deliveryId: number;
   total: number;
   discount: number;
   currencyId: number;
+  customer: Customer;
   items: Item [];
 }

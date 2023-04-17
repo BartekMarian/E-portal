@@ -35,7 +35,7 @@ export class ItemComponent implements OnInit {
     resizable: true,
   };
 
-  units: Unit [] = [{id:1, tittle:"ks"}, {id:2, tittle: "kg"}, {id:3, tittle:"liter"}];
+  units: Unit [] = [{id: 1, tittle: "ks"}, {id: 2, tittle: "kg"}, {id: 3, tittle: "liter"}];
   newRowIndex = -1;
   deletedRows: Item [] = [];
 
@@ -50,7 +50,7 @@ export class ItemComponent implements OnInit {
   }
 
   addItem() {
-    let newRow = this.getNewRow();
+    let newRow: Item = this.getNewRow();
     newRow = {...newRow, editStatus: "INSERT"};
 
     this.newRowIndex--;
@@ -62,7 +62,7 @@ export class ItemComponent implements OnInit {
 
   removeItem() {
     this.closeEditor(false);
-    const selected = this.agGrid.gridOptions.api.getSelectedRows();
+    const selected : Item [] = this.agGrid.gridOptions.api.getSelectedRows();
     if (selected.length > 0) {
       selected.forEach(r => {
         if (r.id > 0) {
@@ -82,7 +82,17 @@ export class ItemComponent implements OnInit {
     this.agGrid.gridOptions.api.stopEditing(!update);
   }
 
-  setUpdateStatus(row: any) {
+  getAllChangedRows() {
+    let data: Item [] = [...this.deletedRows];
+    this.agGrid.gridOptions.api.forEachNode(node => {
+      if ( node.data.editStatus === 'INSERT' || node.data.editStatus === 'UPDATE')
+        data.push(node.data);
+    });
+    return data;
+  }
+
+
+  setUpdateStatus(row: Item) {
     if (row.id > 0) {
       row.editStatus = 'UPDATE';
     }
@@ -123,6 +133,15 @@ export class ItemComponent implements OnInit {
   ]
 
   onCellValueChanged(change: CellValueChangedEvent) {
+    let row : Item = JSON.parse(JSON.stringify(change.data));
+    this.setUpdateStatus(row);
+  }
 
+  save() {
+    this.closeEditor(true);
+    this.deletedRows = []
+    let data : Item [] = this.getAllChangedRows();
+    console.log(data)
+    return data
   }
 }

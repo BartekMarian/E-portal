@@ -7,6 +7,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {DomSanitizer} from "@angular/platform-browser";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import * as moment from "moment";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -49,8 +50,8 @@ export class GeneratePdfButtonComponent implements ICellRendererAngularComp {
           image: await this.getBase64ImageFromURL("../../../assets/invoice_euro.png"),
         },
         {
-          text: 'Faktúra',
-          fontSize: 20,
+          text: 'Faktúra / Daňový doklad',
+          fontSize: 18,
           bold: true,
           alignment: 'center',
           decoration: 'underline',
@@ -58,27 +59,42 @@ export class GeneratePdfButtonComponent implements ICellRendererAngularComp {
         },
         {
           columns: [
-            [{text: 'Odberateľ', alignment: 'left', style: 'sectionHeader'}],
-            [{text: 'Dodávateľ', alignment: 'right', style: 'sectionHeader'}]
+            [
+              {text: 'Dodávateľ',alignment: 'left', style: 'sectionHeader'},
+
+
+              {text: 'Obchodný register Okresného súdu Trnava, oddiel: Sro, vložka č. 34160/T'},
+              {text: ' '},
+            ],
+            [ {text: 'Odberateľ', alignment: 'right', style: 'sectionHeader'},
+              {text: 'Názov : '+this.singleRow.customer.customerName, alignment: 'right', style: 'subject'},
+              {text: 'Adresa : '+this.singleRow.customer.street+', '+this.singleRow.customer.city, alignment: 'right', style: 'subject'},
+              {text: 'IČO: '+this.singleRow.customer.ico, alignment: 'right', style: 'subject' },
+              {text: 'DIČ: '+this.singleRow.customer.dic, alignment: 'right', style: 'subject' },
+              {text: 'DIČ DPH: '+this.singleRow.customer.dicSk, alignment: 'right', style: 'subject' },
+              {text: 'Bankové spojenie : '+this.singleRow.customer.iban, alignment: 'right', style: 'subject'},
+              {text: ' '},]
           ]
         },
         {
           columns: [
             [
-              {text: "Faktúra č. : " + this.singleRow.invoiceNumber, bold: true},
-              {text: "Vystavené dňa : " + this.singleRow.created},
-              {text: "Zdaniteľné plnenie : " + this.singleRow.created},
-              {text: "Dátum splatnosti : " + this.singleRow.dateOfPayment},
-              {text: "Variabilný symbol : " + this.singleRow.invoiceNumber},
+              {text: "Faktúra č. : "+ this.singleRow.invoiceNumber, bold: true},
+
+              {text: "Vystavené dňa : " + moment(this.singleRow.created).format('DD.MM.YYYY'), style: 'subject'},
+              {text: "Zdaniteľné plnenie : "+ moment(this.singleRow.created).format('DD.MM.YYYY'), style: 'subject'},
+              {text: "Dátum splatnosti : "+ moment(this.singleRow.dateOfPayment).format('DD.MM.YYYY'), style: 'subject'},
+              {text: "Variabilný symbol : " + this.singleRow.invoiceNumber, style: 'subject'},
+              {text: "Spôsob úhrady : bankový prevod  ", style: 'subject'},
 
             ],
             [
               {
-                text: `Dátum: ${new Date().toLocaleString()}`,
+                text: "Vytvorené dňa : "+ moment(new Date()).format('DD.MM.YYYY'),
                 alignment: 'right'
               },
               {
-                text: `Číslo objednávky : ${((Math.random() * 1000).toFixed(0))}`,
+                text: `Číslo objednávky : ${((Math.random() * 10000).toFixed(0))}`,
                 alignment: 'right'
               }
             ]
@@ -91,14 +107,15 @@ export class GeneratePdfButtonComponent implements ICellRendererAngularComp {
         {
           table: {
             headerRows: 1,
-            widths: ['*', 'auto', 'auto', 'auto'],
+            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
             body: [
-              ['Názov položky', 'Cena', 'Množstvo', 'Spolu'],
-              ...this.singleRow.items.map(p => ([p.itemName, p.sellingPrice, p.quantity, (p.sellingPrice * p.quantity).toFixed(2)])),
+              ['Názov a popis položky', 'Množstvo', 'Jednotka', 'Jednotková cena bez DPH', 'DPH', 'Cena s DPH', 'Spolu'],
+              ...this.singleRow.items.map(p => ([p.itemName, p.quantity, 'ks', p.sellingPrice-((p.sellingPrice/100)*20)+'€', ((p.sellingPrice/100)*20).toFixed(2)+'€', p.sellingPrice+'€', (p.sellingPrice * p.quantity).toFixed(2)+'€'] )),
               [{
                 text: 'Celkom',
-                colSpan: 3
-              }, {}, {}, this.singleRow.items.reduce((sum, p) => sum + (p.quantity * p.sellingPrice), 0).toFixed(2)]
+                colSpan: 6,
+                style: 'table'
+              }, {}, {},{},{},{}, this.singleRow.items.reduce((sum, p) => sum + (p.quantity * p.sellingPrice), 0).toFixed(2)+'€']
             ]
           }
         },
@@ -107,13 +124,10 @@ export class GeneratePdfButtonComponent implements ICellRendererAngularComp {
           style: 'sectionHeader'
         },
         {
-          text: this.singleRow.dateOfPayment,
-          margin: [0, 0, 0, 15]
-        },
-        {
           columns: [
             [{qr: `${"spolu:" + this.singleRow.total + "cislo faktury:" + this.singleRow.invoiceNumber}`, fit: '85'}],
-            [{text: 'Podpis', alignment: 'right', italics: true}],
+            [{text: 'Pečiatka a podpis', alignment: 'center', italics: true}, {image: await this.getBase64ImageFromURL("../../../assets/stamp.png") , alignment: 'center', style: 'width:80px; padding-right: 50px'}],
+
           ]
         },
         {
@@ -133,7 +147,13 @@ export class GeneratePdfButtonComponent implements ICellRendererAngularComp {
           bold: true,
           decoration: 'underline',
           fontSize: 14,
-          margin: [0, 15, 0, 15]
+          margin: [0, 10, 0, 10]
+        },
+        subject:{
+          fontSize: 11,
+        },
+        table:{
+          fontSize: 11,
         }
       }
     };
