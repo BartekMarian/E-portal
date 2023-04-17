@@ -25,6 +25,7 @@ import {MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition}
 import * as moment from "moment";
 import {NavigationEnd, Router, RouterEvent} from "@angular/router";
 import {Customer} from "../model/customer";
+import {Supplier} from "../model/supplier";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -59,6 +60,7 @@ export class InvoicesComponent implements OnInit, OnDestroy {
   editMode: boolean = false;
   rowData: Invoice [] = [];
   customers: Customer [] = [];
+  suppliers: Supplier [] = [];
   formGroup: FormGroup;
   singleRow: Invoice;
   dateChange$: any;
@@ -85,6 +87,9 @@ export class InvoicesComponent implements OnInit, OnDestroy {
     this.service.listCustomers().pipe().subscribe(c=>{
       this.customers = c;
     })
+    this.service.listSuppliers().pipe().subscribe(s=>{
+      this.suppliers = s;
+    })
   }
 
 
@@ -104,7 +109,11 @@ export class InvoicesComponent implements OnInit, OnDestroy {
       headerName: 'Číslo Faktúry',
       field: 'invoiceNumber',
     },
-    {headerName: 'Dodávateľ', field: 'supplierId'},
+    {headerName: 'Dodávateľ', field: 'supplierId',
+      valueGetter: (params: any) => {
+        const t = this.suppliers.find(s => s.id === params.data?.supplierId);
+        return t ? t.supplierName : null;
+      },},
     {headerName: 'Odberateľ', field: 'customer.customerName'},
     {
       headerName: 'Stav úhrady', field: 'status',

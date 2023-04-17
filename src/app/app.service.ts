@@ -5,6 +5,7 @@ import {Invoice} from "./model/invoice";
 import {Unit} from "./model/unit";
 import {NGXLogger} from "ngx-logger";
 import {Customer} from "./model/customer";
+import {Supplier} from "./model/supplier";
 
 
 @Injectable({
@@ -35,5 +36,9 @@ export class AppService {
 
   listCustomers(): Observable< Customer[]> {
     return this.http.get<Customer[]>('api/customers');
+  }
+
+  listSuppliers(): Observable< Supplier[]> {
+    return this.http.get<Supplier[]>('api/suppliers');
   }
 }

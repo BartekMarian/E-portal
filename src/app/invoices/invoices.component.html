@@ -70,12 +70,14 @@
                          placeholder="Cislo faktury"/>
                 </mat-form-field>
 
-                <mat-form-field class="mat-form-field" matTooltip="Dodávateľ">
-                  <mat-label>Dodavatel</mat-label>
-                  <input matInput
-                         formControlName="supplierId"
-                         placeholder="Dodávateľ"/>
-                </mat-form-field>
+                <ng-container >
+                  <mat-form-field class="mat-form-field" matTooltip="Dodávateľ">
+                    <mat-label>Dodávateľ</mat-label>
+                    <mat-select formControlName="supplierId" class="none">
+                      <mat-option *ngFor="let supplier of suppliers" [value]="supplier.id">{{supplier.supplierName}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </ng-container>
 
                 <ng-container formGroupName="customer">
                   <mat-form-field class="mat-form-field" matTooltip="Odberateľ">
