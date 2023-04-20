@@ -18,4 +18,5 @@ export class Invoice {
   currencyId: number;
   customer: Customer;
   items: Item [];
+  orderStatus: boolean;
 }

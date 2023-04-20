@@ -1,6 +1,6 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {Invoice} from "../../model/invoice";
-import {CellValueChangedEvent, ColDef, GridReadyEvent, SideBarDef} from "ag-grid-community";
+import {CellValueChangedEvent, ColDef, GridApi, GridReadyEvent, SideBarDef} from "ag-grid-community";
 import {InvoiceService} from "../invoice.service";
 import {Unit} from "../../model/unit";
 import {Item} from "../../model/item";
@@ -17,6 +17,7 @@ export class ItemComponent implements OnInit {
 
   @ViewChild('gridWrapper') agElm: ElementRef;
   @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
+  private gridApi!: GridApi;
 
   @Input()
   rowData: Invoice;
@@ -38,11 +39,18 @@ export class ItemComponent implements OnInit {
   units: Unit [] = [{id: 1, tittle: "ks"}, {id: 2, tittle: "kg"}, {id: 3, tittle: "liter"}];
   newRowIndex = -1;
   deletedRows: Item [] = [];
+  disableEdit: boolean = false;
 
   constructor(private service: AppService) {
   }
 
   ngOnInit(): void {
+  }
+
+  onSingleRowSelected() {
+    if (this.gridApi.getSelectedRows().length > 0) {
+      this.disableEdit = true
+    }
   }
 
   getNewRow(): any {
@@ -62,14 +70,14 @@ export class ItemComponent implements OnInit {
 
   removeItem() {
     this.closeEditor(false);
-    const selected : Item [] = this.agGrid.gridOptions.api.getSelectedRows();
+    const selected: Item [] = this.agGrid.gridOptions.api.getSelectedRows();
     if (selected.length > 0) {
       selected.forEach(r => {
         if (r.id > 0) {
           this.deletedRows.push({...r, editStatus: 'DELETE'})
         }
       });
-      this.agGrid.gridOptions.api.applyTransaction({
+      this.agGrid.api.applyTransaction({
         remove: selected
       })
     }
@@ -85,7 +93,7 @@ export class ItemComponent implements OnInit {
   getAllChangedRows() {
     let data: Item [] = [...this.deletedRows];
     this.agGrid.gridOptions.api.forEachNode(node => {
-      if ( node.data.editStatus === 'INSERT' || node.data.editStatus === 'UPDATE')
+      if (node.data.editStatus === 'INSERT' || node.data.editStatus === 'UPDATE')
         data.push(node.data);
     });
     return data;
@@ -93,16 +101,18 @@ export class ItemComponent implements OnInit {
 
 
   setUpdateStatus(row: Item) {
+    let updatedItems: Item [] = [];
     if (row.id > 0) {
       row.editStatus = 'UPDATE';
     }
-    this.agGrid.gridOptions.api.applyTransaction({
-      update: [row]
-    });
+    updatedItems.push(row)
+    this.gridApi.applyTransaction({update: updatedItems});
+    console.log(this.gridApi)
   }
 
   onGridReady(params: GridReadyEvent) {
-    this.agGrid.api.sizeColumnsToFit();
+    this.gridApi = params.api;
+    this.gridApi.sizeColumnsToFit();
   }
 
   columnDefs = [
@@ -133,15 +143,14 @@ export class ItemComponent implements OnInit {
   ]
 
   onCellValueChanged(change: CellValueChangedEvent) {
-    let row : Item = JSON.parse(JSON.stringify(change.data));
+    let row: Item = JSON.parse(JSON.stringify(change.data));
     this.setUpdateStatus(row);
   }
 
   save() {
     this.closeEditor(true);
+    let data: Item [] = this.getAllChangedRows();
     this.deletedRows = []
-    let data : Item [] = this.getAllChangedRows();
-    console.log(data)
     return data
   }
 }

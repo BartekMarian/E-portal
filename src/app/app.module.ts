@@ -39,6 +39,7 @@ import {environment} from "../enviroments/enviroment";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {RouterModule} from "@angular/router";
 import { CustomersComponent } from './customers/customers/customers.component';
+import { EshopOrderComponent } from './cell-renderers/eshop-order/eshop-order.component';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { CustomersComponent } from './customers/customers/customers.component';
     GridSelectEditorComponent,
     GeneratePdfButtonComponent,
     CustomersComponent,
+    EshopOrderComponent,
   ],
   imports: [
     // BrowserModule.withServerTransition({ appId: 'serverApp' }),

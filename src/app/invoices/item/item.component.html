@@ -1,10 +1,9 @@
 <ng-container *ngIf="editMode">
   <button class="btn btn-outline-success btn-sm" (click)="addItem()" matTooltip="Pridať položku">Pridať položku</button>
-  <button class="btn btn-outline-dark btn-sm" (click)="removeItem()" matTooltip="Vymazať položku">Vymazať položku</button>
+  <button class="btn btn-outline-dark btn-sm" [disabled]="!disableEdit" (click)="removeItem()" matTooltip="Vymazať položku">Vymazať položku</button>
 </ng-container>
 
-<ag-grid-angular #gridWraper
-                 domLayout='autoHeight'
+<ag-grid-angular
                  class="ag-theme-alpine"
                  rowSelection="single"
                  [rowData]="rowData.items"
@@ -16,6 +15,7 @@
                  [paginationAutoPageSize]="true"
                  [singleClickEdit]="true"
                  [stopEditingWhenCellsLoseFocus]="true"
+                 (selectionChanged)="onSingleRowSelected()"
                  (cellValueChanged)="onCellValueChanged($event)"
                  [pagination]="true">
 </ag-grid-angular>

@@ -1,19 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  EventEmitter,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild
-} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {AgGridAngular} from "ag-grid-angular";
 import {Invoice} from "../model/invoice";
-import {ColDef, GridReadyEvent, SideBarDef} from "ag-grid-community";
+import {ColDef, SideBarDef} from "ag-grid-community";
 import {MatDatepickerInputEvent} from "@angular/material/datepicker";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {combineLatest, filter, map, Subject} from "rxjs";
+import {combineLatest, map, Subject} from "rxjs";
 import {SplitAreaDirective, SplitComponent} from "angular-split";
 import {ItemComponent} from "./item/item.component";
 import pdfMake from "pdfmake/build/pdfmake";
@@ -23,9 +14,10 @@ import {AppService} from "../app.service";
 import {NGXLogger} from "ngx-logger";
 import {MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition} from "@angular/material/snack-bar";
 import * as moment from "moment";
-import {NavigationEnd, Router, RouterEvent} from "@angular/router";
+import {Router} from "@angular/router";
 import {Customer} from "../model/customer";
 import {Supplier} from "../model/supplier";
+import {EshopOrderComponent} from "../cell-renderers/eshop-order/eshop-order.component";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -84,10 +76,10 @@ export class InvoicesComponent implements OnInit, OnDestroy {
               private router: Router,
   ) {
     this.createFormGroup();
-    this.service.listCustomers().pipe().subscribe(c=>{
+    this.service.listCustomers().pipe().subscribe(c => {
       this.customers = c;
     })
-    this.service.listSuppliers().pipe().subscribe(s=>{
+    this.service.listSuppliers().pipe().subscribe(s => {
       this.suppliers = s;
     })
   }
@@ -102,18 +94,24 @@ export class InvoicesComponent implements OnInit, OnDestroy {
 
   columnDefs = [
     {
-      width: 100,
+      width: 50,
       cellRenderer: GeneratePdfButtonComponent
+    },
+    {
+      width: 50,
+      cellRenderer: EshopOrderComponent
     },
     {
       headerName: 'Číslo Faktúry',
       field: 'invoiceNumber',
     },
-    {headerName: 'Dodávateľ', field: 'supplierId',
+    {
+      headerName: 'Dodávateľ', field: 'supplierId',
       valueGetter: (params: any) => {
         const t = this.suppliers.find(s => s.id === params.data?.supplierId);
         return t ? t.supplierName : null;
-      },},
+      },
+    },
     {headerName: 'Odberateľ', field: 'customer.customerName'},
     {
       headerName: 'Stav úhrady', field: 'status',
@@ -206,16 +204,21 @@ export class InvoicesComponent implements OnInit, OnDestroy {
     this.formGroup.get('status').valueChanges.subscribe(status => {
       this.changeStatusColor(status);
     });
-    this.formGroup.get('subtotal').valueChanges.subscribe(subtotal => {
-      this.countAmountWithDiscount(subtotal);
+    this.formGroup.get('discount').valueChanges.subscribe(discount => {
+      let subtotal = 0;
+      this.singleRow.items.forEach(f => {
+        subtotal += f.sellingPrice * f.quantity
+      });
+      this.formGroup.get('subtotal').setValue(subtotal);
+      this.countAmountWithDiscount(discount, subtotal);
     })
   }
 
-  countAmountWithDiscount(subtotal: number) {
-    let discount = this.formGroup.get('discount').value;
+  countAmountWithDiscount(discount: number, subtotal: number) {
     if (discount != null && discount > 0) {
       subtotal = subtotal * (1 - discount / 100)
     }
+    this.formGroup.get('subtotal').setValue((subtotal).toFixed(2));
     this.formGroup.get('vat').setValue(((subtotal / 100) * 20).toFixed(2));
     this.formGroup.get('total').setValue((subtotal * 1.2).toFixed(2));
   }
@@ -254,6 +257,7 @@ export class InvoicesComponent implements OnInit, OnDestroy {
   repairClick() {
     this.editMode = true;
     this.formGroup.enable();
+    this.formGroup.get('subtotal').disable();
     this.formGroup.get('vat').disable();
     this.formGroup.get('total').disable();
   }
@@ -264,8 +268,7 @@ export class InvoicesComponent implements OnInit, OnDestroy {
       return
     }
     let data = this.formGroup.getRawValue();
-    console.log(data)
-    data.items =  this.itemComponent.save();
+    data.items = this.itemComponent.save();
     console.log(data.items)
     this.service.saveInvoice(data).subscribe(res => {
       if (res) {
