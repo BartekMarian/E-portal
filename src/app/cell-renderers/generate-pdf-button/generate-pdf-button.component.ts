@@ -20,6 +20,7 @@ export class GeneratePdfButtonComponent implements ICellRendererAngularComp {
 
   singleRow: Invoice;
   private params!: ICellRendererParams;
+  paymentMethods: any [] = [{id: 1, name: "Prevodom na účet"}, {id: 2, name: "Dobierkou"}, {id: 3, name: "V hotovosti"}]
 
 
   constructor(private dialog: MatDialog,
@@ -43,121 +44,271 @@ export class GeneratePdfButtonComponent implements ICellRendererAngularComp {
     this.singleRow = params.data;
   }
 
+  roundTotal(){
+    let total = Number(this.singleRow.total.toFixed(2));
+    let sum = total.toString();
+    let roundSum;
+    console.log((sum.substring(sum.length -1)))
+    switch (sum.substring(sum.length -1)) {
+      case '1':
+        roundSum = (total - 0.01);
+        break
+      case '2':
+        roundSum = total - 0.02;
+        break
+      case '3':
+        roundSum = total + 0.02;
+        break
+      case '4':
+        roundSum = total + 0.01;
+        break
+      case '6':
+        roundSum = total - 0.01;
+        break
+      case '7':
+        roundSum = total - 0.02;
+        break
+      case '8':
+        roundSum = total + 0.02;
+        break
+      case '9':
+        roundSum = total+ 0.01;
+        break
+      default:
+        return roundSum = total
+    }
+    return roundSum;
+  }
   async pdfView() {
-    let docDefinition = {
-      content: [
-        {
-          image: await this.getBase64ImageFromURL("../../../assets/invoice_euro.png"),
-        },
-        {
-          text: 'Faktúra / Daňový doklad',
-          fontSize: 18,
-          bold: true,
-          alignment: 'center',
-          decoration: 'underline',
-          color: 'black'
-        },
-        {
-          columns: [
-            [
-              {text: 'Dodávateľ',alignment: 'left', style: 'sectionHeader'},
+    let paymentMethod = this.paymentMethods.find(f=>f.id === this.singleRow.paymentMethod)
+    if (this.singleRow.paymentMethod === 2) {
+      let docDefinition2 = {
+        content: [
+          {
+            image: await this.getBase64ImageFromURL("../../../assets/invoice_euro.png"),
+          },
+          {
+            text: 'Faktúra / Daňový doklad',
+            fontSize: 18,
+            bold: true,
+            alignment: 'center',
+            decoration: 'underline',
+            color: 'black'
+          },
+          {
+            columns: [
+              [
+                {text: 'Dodávateľ',alignment: 'left', style: 'sectionHeader'},
 
 
-              {text: 'Obchodný register Okresného súdu Trnava, oddiel: Sro, vložka č. 34160/T'},
-              {text: ' '},
-            ],
-            [ {text: 'Odberateľ', alignment: 'right', style: 'sectionHeader'},
-              {text: 'Názov : '+this.singleRow.customer.customerName, alignment: 'right', style: 'subject'},
-              {text: 'Adresa : '+this.singleRow.customer.street+', '+this.singleRow.customer.city, alignment: 'right', style: 'subject'},
-              {text: 'IČO: '+this.singleRow.customer.ico, alignment: 'right', style: 'subject' },
-              {text: 'DIČ: '+this.singleRow.customer.dic, alignment: 'right', style: 'subject' },
-              {text: 'DIČ DPH: '+this.singleRow.customer.dicSk, alignment: 'right', style: 'subject' },
-              {text: 'Bankové spojenie : '+this.singleRow.customer.iban, alignment: 'right', style: 'subject'},
-              {text: ' '},]
-          ]
-        },
-        {
-          columns: [
-            [
-              {text: "Faktúra č. : "+ this.singleRow.invoiceNumber, bold: true},
-
-              {text: "Vystavené dňa : " + moment(this.singleRow.created).format('DD.MM.YYYY'), style: 'subject'},
-              {text: "Zdaniteľné plnenie : "+ moment(this.singleRow.created).format('DD.MM.YYYY'), style: 'subject'},
-              {text: "Dátum splatnosti : "+ moment(this.singleRow.dateOfPayment).format('DD.MM.YYYY'), style: 'subject'},
-              {text: "Variabilný symbol : " + this.singleRow.invoiceNumber, style: 'subject'},
-              {text: "Spôsob úhrady : bankový prevod  ", style: 'subject'},
-
-            ],
-            [
-              {
-                text: "Vytvorené dňa : "+ moment(new Date()).format('DD.MM.YYYY'),
-                alignment: 'right'
-              },
-              {
-                text: `Číslo objednávky : ${((Math.random() * 10000).toFixed(0))}`,
-                alignment: 'right'
-              }
+                {text: 'Obchodný register Okresného súdu Trnava, oddiel: Sro, vložka č. 34160/T'},
+                {text: ' '},
+              ],
+              [ {text: 'Odberateľ', alignment: 'right', style: 'sectionHeader'},
+                {text: 'Názov : '+this.singleRow.customer.customerName, alignment: 'right', style: 'subject'},
+                {text: 'Adresa : '+this.singleRow.customer.street+', '+this.singleRow.customer.city, alignment: 'right', style: 'subject'},
+                {text: 'IČO: '+this.singleRow.customer.ico, alignment: 'right', style: 'subject' },
+                {text: 'DIČ: '+this.singleRow.customer.dic, alignment: 'right', style: 'subject' },
+                {text: 'DIČ DPH: '+this.singleRow.customer.dicSk, alignment: 'right', style: 'subject' },
+                {text: 'Bankové spojenie : '+this.singleRow.customer.iban, alignment: 'right', style: 'subject'},
+                {text: ' '},]
             ]
-          ]
-        },
-        {
-          text: 'Položky',
-          style: 'sectionHeader'
-        },
-        {
-          table: {
-            headerRows: 1,
-            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
-            body: [
-              ['Názov a popis položky', 'Množstvo', 'Jednotka', 'Jednotková cena bez DPH', 'DPH', 'Cena s DPH', 'Spolu'],
-              ...this.singleRow.items.map(p => ([p.itemName, p.quantity, 'ks', p.sellingPrice-((p.sellingPrice/100)*20)+'€', ((p.sellingPrice/100)*20).toFixed(2)+'€', p.sellingPrice+'€', (p.sellingPrice * p.quantity).toFixed(2)+'€'] )),
-              [{
-                text: 'Celkom',
-                colSpan: 6,
-                style: 'table'
-              }, {}, {},{},{},{}, this.singleRow.items.reduce((sum, p) => sum + (p.quantity * p.sellingPrice), 0).toFixed(2)+'€']
+          },
+          {
+            columns: [
+              [
+                {text: "Faktúra č. : "+ this.singleRow.invoiceNumber, bold: true},
+
+                {text: "Vystavené dňa : " + moment(this.singleRow.created).format('DD.MM.YYYY'), style: 'subject'},
+                {text: "Zdaniteľné plnenie : "+ moment(this.singleRow.created).format('DD.MM.YYYY'), style: 'subject'},
+                {text: "Dátum splatnosti : "+ moment(this.singleRow.dateOfPayment).format('DD.MM.YYYY'), style: 'subject'},
+                {text: "Variabilný symbol : " + this.singleRow.invoiceNumber, style: 'subject'},
+                {text: "Spôsob úhrady : "+paymentMethod.name, style: 'subject'},
+
+              ],
+              [
+                {
+                  text: "Vytvorené dňa : "+ moment(new Date()).format('DD.MM.YYYY'),
+                  alignment: 'right'
+                },
+                {
+                  text: `Číslo objednávky : ${((Math.random() * 10000).toFixed(0))}`,
+                  alignment: 'right'
+                }
+              ]
             ]
+          },
+          {
+            text: 'Položky',
+            style: 'sectionHeader'
+          },
+          {
+            table: {
+              headerRows: 1,
+              widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+              body: [
+                ['Názov a popis položky', 'Množstvo', 'Jednotka', 'Jednotková cena bez DPH', 'DPH', 'Cena s DPH', 'Spolu'],
+                ...this.singleRow.items.map(p => ([p.itemName, p.quantity, 'ks', p.sellingPrice-((p.sellingPrice/100)*20)+'€', ((p.sellingPrice/100)*20).toFixed(2)+'€', p.sellingPrice+'€', (p.sellingPrice * p.quantity).toFixed(2)+'€'] )),
+                [{text: 'Celkom', colSpan: 6, style: 'table'}, {}, {},{},{},{}, this.singleRow.total+'€'],
+                [{text: 'Po zaokrúhlení', colSpan: 6, style: 'table'}, {}, {},{},{},{},this.roundTotal().toFixed(2) +'€'],
+              ]
+            }
+          },
+          {
+            text: 'Doplňujúce informácie',
+            style: 'sectionHeader'
+          },
+          {
+            columns: [
+              [{qr: `${"spolu:" + this.singleRow.total + "cislo faktury:" + this.singleRow.invoiceNumber}`, fit: '85'}],
+              [{text: 'Pečiatka a podpis', alignment: 'center', italics: true}, {image: await this.getBase64ImageFromURL("../../../assets/stamp.png") , alignment: 'center', style: 'width:80px; padding-right: 50px'}],
+
+            ]
+          },
+          {
+            text: 'Podmienky',
+            style: 'sectionHeader'
+          },
+          {
+            ul: [
+              'Objednávku je možné vrátiť do 10 dní',
+              'Záruka na produkt bude podliehať zmluvným podmienkam výrobcu.',
+              'Toto je faktúra vygenerovaná systémom.',
+            ],
           }
-        },
-        {
-          text: 'Doplňujúce informácie',
-          style: 'sectionHeader'
-        },
-        {
-          columns: [
-            [{qr: `${"spolu:" + this.singleRow.total + "cislo faktury:" + this.singleRow.invoiceNumber}`, fit: '85'}],
-            [{text: 'Pečiatka a podpis', alignment: 'center', italics: true}, {image: await this.getBase64ImageFromURL("../../../assets/stamp.png") , alignment: 'center', style: 'width:80px; padding-right: 50px'}],
+        ],
+        styles: {
+          sectionHeader: {
+            bold: true,
+            decoration: 'underline',
+            fontSize: 14,
+            margin: [0, 10, 0, 10]
+          },
+          subject:{
+            fontSize: 11,
+          },
+          table:{
+            fontSize: 11,
+          }
+        }
+      };
+      pdfMake.createPdf(docDefinition2).open();
+    }else {
+      let docDefinition = {
+        content: [
+          {
+            image: await this.getBase64ImageFromURL("../../../assets/invoice_euro.png"),
+          },
+          {
+            text: 'Faktúra / Daňový doklad',
+            fontSize: 18,
+            bold: true,
+            alignment: 'center',
+            decoration: 'underline',
+            color: 'black'
+          },
+          {
+            columns: [
+              [
+                {text: 'Dodávateľ',alignment: 'left', style: 'sectionHeader'},
 
-          ]
-        },
-        {
-          text: 'Podmienky',
-          style: 'sectionHeader'
-        },
-        {
-          ul: [
-            'Objednávku je možné vrátiť do 10 dní',
-            'Záruka na produkt bude podliehať zmluvným podmienkam výrobcu.',
-            'Toto je faktúra vygenerovaná systémom.',
-          ],
+
+                {text: 'Obchodný register Okresného súdu Trnava, oddiel: Sro, vložka č. 34160/T'},
+                {text: ' '},
+              ],
+              [ {text: 'Odberateľ', alignment: 'right', style: 'sectionHeader'},
+                {text: 'Názov : '+this.singleRow.customer.customerName, alignment: 'right', style: 'subject'},
+                {text: 'Adresa : '+this.singleRow.customer.street+', '+this.singleRow.customer.city, alignment: 'right', style: 'subject'},
+                {text: 'IČO: '+this.singleRow.customer.ico, alignment: 'right', style: 'subject' },
+                {text: 'DIČ: '+this.singleRow.customer.dic, alignment: 'right', style: 'subject' },
+                {text: 'DIČ DPH: '+this.singleRow.customer.dicSk, alignment: 'right', style: 'subject' },
+                {text: 'Bankové spojenie : '+this.singleRow.customer.iban, alignment: 'right', style: 'subject'},
+                {text: ' '},]
+            ]
+          },
+          {
+            columns: [
+              [
+                {text: "Faktúra č. : "+ this.singleRow.invoiceNumber, bold: true},
+
+                {text: "Vystavené dňa : " + moment(this.singleRow.created).format('DD.MM.YYYY'), style: 'subject'},
+                {text: "Zdaniteľné plnenie : "+ moment(this.singleRow.created).format('DD.MM.YYYY'), style: 'subject'},
+                {text: "Dátum splatnosti : "+ moment(this.singleRow.dateOfPayment).format('DD.MM.YYYY'), style: 'subject'},
+                {text: "Variabilný symbol : " + this.singleRow.invoiceNumber, style: 'subject'},
+                {text: "Spôsob úhrady : "+paymentMethod.name, style: 'subject'},
+
+              ],
+              [
+                {
+                  text: "Vytvorené dňa : "+ moment(new Date()).format('DD.MM.YYYY'),
+                  alignment: 'right'
+                },
+                {
+                  text: `Číslo objednávky : ${((Math.random() * 10000).toFixed(0))}`,
+                  alignment: 'right'
+                }
+              ]
+            ]
+          },
+          {
+            text: 'Položky',
+            style: 'sectionHeader'
+          },
+          {
+            table: {
+              headerRows: 1,
+              widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+              body: [
+                ['Názov a popis položky', 'Množstvo', 'Jednotka', 'Jednotková cena bez DPH', 'DPH', 'Cena s DPH', 'Spolu'],
+                ...this.singleRow.items.map(p => ([p.itemName, p.quantity, 'ks', p.sellingPrice-((p.sellingPrice/100)*20)+'€'] )),
+                [{
+                text: 'Celkom',
+                  colSpan: 6,
+                  style: 'table'
+                }, {}, {},{},{},{}, this.singleRow.items.reduce((sum, p) => sum + (p.quantity * p.sellingPrice), 0).toFixed(2)+'€'],
+              ]
+            }
+          },
+          {
+            text: 'Doplňujúce informácie',
+            style: 'sectionHeader'
+          },
+          {
+            columns: [
+              [{qr: `${"spolu:" + this.singleRow.total + "cislo faktury:" + this.singleRow.invoiceNumber}`, fit: '85'}],
+              [{text: 'Pečiatka a podpis', alignment: 'center', italics: true}, {image: await this.getBase64ImageFromURL("../../../assets/stamp.png") , alignment: 'center', style: 'width:80px; padding-right: 50px'}],
+
+            ]
+          },
+          {
+            text: 'Podmienky',
+            style: 'sectionHeader'
+          },
+          {
+            ul: [
+              'Objednávku je možné vrátiť do 10 dní',
+              'Záruka na produkt bude podliehať zmluvným podmienkam výrobcu.',
+              'Toto je faktúra vygenerovaná systémom.',
+            ],
+          }
+        ],
+        styles: {
+          sectionHeader: {
+            bold: true,
+            decoration: 'underline',
+            fontSize: 14,
+            margin: [0, 10, 0, 10]
+          },
+          subject:{
+            fontSize: 11,
+          },
+          table:{
+            fontSize: 11,
+          }
         }
-      ],
-      styles: {
-        sectionHeader: {
-          bold: true,
-          decoration: 'underline',
-          fontSize: 14,
-          margin: [0, 10, 0, 10]
-        },
-        subject:{
-          fontSize: 11,
-        },
-        table:{
-          fontSize: 11,
-        }
-      }
-    };
-    pdfMake.createPdf(docDefinition).open();
+      };
+      pdfMake.createPdf(docDefinition).open();
+    }
   }
 
   getBase64ImageFromURL(url) {

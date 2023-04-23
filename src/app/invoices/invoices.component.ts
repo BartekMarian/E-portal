@@ -57,6 +57,7 @@ export class InvoicesComponent implements OnInit, OnDestroy {
   singleRow: Invoice;
   dateChange$: any;
   statuses: any [] = [{id: 1, name: "Uhradené"}, {id: 2, name: "Čaká na úhradu"}, {id: 3, name: "Po splatnosti"}]
+  paymentMethods: any [] = [{id: 1, name: "Prevodom na účet"}, {id: 2, name: "Dobierkou"}, {id: 3, name: "V hotovosti"}]
   currencies: any [] = [{id: 1, name: "Euro"}, {id: 2, name: "Dolár"}, {id: 3, name: "CZK"}, {id: 4, name: "PLZ"}]
   startDatePicker = new Subject<MatDatepickerInputEvent<any>>();
   endDatePicker = new Subject<MatDatepickerInputEvent<any>>();
@@ -105,13 +106,7 @@ export class InvoicesComponent implements OnInit, OnDestroy {
       headerName: 'Číslo Faktúry',
       field: 'invoiceNumber',
     },
-    {
-      headerName: 'Dodávateľ', field: 'supplierId',
-      valueGetter: (params: any) => {
-        const t = this.suppliers.find(s => s.id === params.data?.supplierId);
-        return t ? t.supplierName : null;
-      },
-    },
+    {headerName: 'Dodávateľ', field: 'supplier.supplierName'},
     {headerName: 'Odberateľ', field: 'customer.customerName'},
     {
       headerName: 'Stav úhrady', field: 'status',
@@ -186,13 +181,18 @@ export class InvoicesComponent implements OnInit, OnDestroy {
     this.formGroup = this.fb.group({
       id: this.fb.control(null),
       invoiceNumber: this.fb.control(null, Validators.required),
-      supplierId: this.fb.control(null),
       status: this.fb.control(null),
       discount: this.fb.control(null),
       currencyId: this.fb.control(null),
       subtotal: this.fb.control(null),
       vat: this.fb.control(null),
       total: this.fb.control(null),
+      paymentMethod: this.fb.control(null),
+      orderStatus: this.fb.control(null),
+      supplier: this.fb.group({
+        id: this.fb.control(null),
+        supplierName: this.fb.control(null),
+      }),
       customer: this.fb.group({
         id: this.fb.control(null),
         customerName: this.fb.control(null),
