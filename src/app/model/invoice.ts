@@ -4,7 +4,7 @@ import {Supplier} from "./supplier";
 
 export class Invoice {
   id: number;
-  invoiceNumber: string;
+  invoiceNumber: number;
   status: number;
   subtotal: number;
   vat: number;

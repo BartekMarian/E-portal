@@ -22,6 +22,10 @@ export class AppService {
     return this.http.get<Invoice[]>('api/invoices');
   }
 
+  getLastInvoiceNumber(): Observable<Invoice> {
+    return this.http.get<Invoice>('api/invoices/last');
+  }
+
   listUnits(): Observable< Unit[]> {
     return this.http.get<Unit[]>('api/units');
   }

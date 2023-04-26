@@ -206,9 +206,11 @@ export class InvoicesComponent implements OnInit, OnDestroy {
     });
     this.formGroup.get('discount').valueChanges.subscribe(discount => {
       let subtotal = 0;
-      this.singleRow.items.forEach(f => {
-        subtotal += f.sellingPrice * f.quantity
-      });
+      if (this.singleRow?.items.length > 0) {
+        this.singleRow.items.forEach(f => {
+          subtotal += f.sellingPrice * f.quantity
+        });
+      }
       this.formGroup.get('subtotal').setValue(subtotal);
       this.countAmountWithDiscount(discount, subtotal);
     })
@@ -291,16 +293,22 @@ export class InvoicesComponent implements OnInit, OnDestroy {
     this.formGroup.disable()
     this.editMode = false;
     this.formGroup.patchValue(this.singleRow);
-    if (this.formGroup.get('id').value === null) {
+    if (this.formGroup.get('id').value === 0) {
       this.closeClick();
     }
   }
 
   addClick() {
-    this.singleRow = {id: 0} as Invoice
-    this.formGroup.reset();
-    this.formGroup.enable();
-    this.editMode = true;
+    this.service.getLastInvoiceNumber().subscribe(s => {
+      if (s!=undefined) {
+        this.formGroup.reset();
+        this.formGroup.enable();
+        this.formGroup.get('invoiceNumber').disable();
+        this.editMode = true;
+        this.singleRow = {id: 0, invoiceNumber: s.invoiceNumber+1, items: []} as Invoice
+        this.formGroup.patchValue(this.singleRow);
+      }
+    });
   }
 
   deleteCLick() {

@@ -79,6 +79,7 @@ export class GeneratePdfButtonComponent implements ICellRendererAngularComp {
     }
     return roundSum;
   }
+
   async pdfView() {
     let paymentMethod = this.paymentMethods.find(f=>f.id === this.singleRow.paymentMethod)
     if (this.singleRow.paymentMethod === 2) {
