@@ -78,5 +78,26 @@
   right: 20px;
 }
 
+.green-snackbar {
+    --mdc-snackbar-container-color: #79B4A9;
+  padding-bottom: 30px;
+  padding-left: 20px;
+}
+
+.red-snackbar {
+  --mdc-snackbar-container-color: #b10e1e;
+  padding-bottom: 30px;
+  padding-left: 20px;
+}
+
+.orange-snackbar {
+  --mdc-snackbar-container-color: orange;
+  padding-bottom: 30px;
+  padding-left: 20px;
+}
+
+
+
+
 
 

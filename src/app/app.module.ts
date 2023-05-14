@@ -38,8 +38,11 @@ import {LoggerModule} from "ngx-logger";
 import {environment} from "../enviroments/enviroment";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {RouterModule} from "@angular/router";
-import { CustomersComponent } from './customers/customers/customers.component';
-import { EshopOrderComponent } from './cell-renderers/eshop-order/eshop-order.component';
+import {CustomersComponent} from './customers/customers/customers.component';
+import {EshopOrderComponent} from './cell-renderers/eshop-order/eshop-order.component';
+import {
+  DeleteConfirmationDialogComponent
+} from './dialog/delete-confirmation-dialog/delete-confirmation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +54,7 @@ import { EshopOrderComponent } from './cell-renderers/eshop-order/eshop-order.co
     GeneratePdfButtonComponent,
     CustomersComponent,
     EshopOrderComponent,
+    DeleteConfirmationDialogComponent,
   ],
   imports: [
     // BrowserModule.withServerTransition({ appId: 'serverApp' }),

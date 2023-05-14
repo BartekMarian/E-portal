@@ -33,15 +33,15 @@
 <mat-sidenav-container class="app-container">
   <mat-sidenav #sidenav mode="side" [class.mat-elevation-z4]="true" class="app-sidenav">
     <mat-nav-list>
-      <mat-expansion-panel  class="mat-expansion-panel">
+      <mat-expansion-panel  class="mat-expansion-panel"  expanded="1">
         <mat-expansion-panel-header>
           Faktúry
         </mat-expansion-panel-header>
         <mat-nav-list>
          <mat-icon routerLink="/invoices" fontIcon="receipt_long"></mat-icon><span routerLink="/invoices">Zoznam faktúr</span>
         </mat-nav-list>
-      </mat-expansion-panel>
-      <mat-expansion-panel [class.mat-elevation-z0]="true">
+      </mat-expansion-panel >
+      <mat-expansion-panel  class="mat-expansion-panel"  expanded="1"   >
         <mat-expansion-panel-header>
           Zákazníci
         </mat-expansion-panel-header>
@@ -53,9 +53,7 @@
   </mat-sidenav>
   <mat-sidenav-content>
     <router-outlet>
-      <div class="app-sidenav-content">
-
-      </div>
+      <div class="app-sidenav-content"></div>
     </router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>

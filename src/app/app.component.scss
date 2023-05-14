@@ -1,49 +1,58 @@
-li{
-  display: inline;
-}
-a{
-  color:green;
-  font-size: 40px;
-  text-decoration: none;
-  padding: 10px 20px;
-  text-align: center;
+:host {
 
-}
-a:hover{
-  background-color: green;
-  color: white;
-  border-radius: 25px 25px;
-  height: 20px;
-}
-span{
-  padding : 10px;
-  position: center;
-}
-.navbar{
-  background-color: white;
-  text-align:right;
-  padding:30px;
-  position:center;
-  transition: all 0.4s;
-}
+  li {
+    display: inline;
+  }
 
-.toolbar-item-spacer {
-  flex: 1 1 auto;
-}
+  a {
+    color: green;
+    font-size: 40px;
+    text-decoration: none;
+    padding: 10px 20px;
+    text-align: center;
 
-.app-container {
-  height: 90%;
-  margin: 0;
+  }
 
-}
-.app-sidenav {
-  width: 230px;
-  background:#9CC69B
-}
-.app-sidenav-content {
-  display: flex;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
+  a:hover {
+    background-color: green;
+    color: white;
+    border-radius: 25px 25px;
+    height: 20px;
+  }
+
+  span {
+    padding: 10px;
+    position: center;
+  }
+
+  .navbar {
+    background-color: white;
+    text-align: right;
+    padding: 30px;
+    position: center;
+    transition: all 0.4s;
+  }
+
+  .toolbar-item-spacer {
+    flex: 1 1 auto;
+  }
+
+  .app-container {
+    height: 90%;
+    margin: 0;
+
+  }
+
+  .app-sidenav {
+    width: 230px;
+    background: #9CC69B
+  }
+
+  .app-sidenav-content {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
