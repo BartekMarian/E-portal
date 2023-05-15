@@ -38,13 +38,13 @@
   }
 
   .app-container {
-    height: 90%;
+    height: 100%;
     margin: 0;
-
   }
 
   .app-sidenav {
     width: 230px;
+    height: 100%;
     background: #9CC69B
   }
 
@@ -54,5 +54,6 @@
     align-items: center;
     justify-content: center;
   }
+
 }
 

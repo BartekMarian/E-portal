@@ -43,6 +43,7 @@ import {EshopOrderComponent} from './cell-renderers/eshop-order/eshop-order.comp
 import {
   DeleteConfirmationDialogComponent
 } from './dialog/delete-confirmation-dialog/delete-confirmation-dialog.component';
+import {SuppliersComponent} from './suppliers/suppliers.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +56,7 @@ import {
     CustomersComponent,
     EshopOrderComponent,
     DeleteConfirmationDialogComponent,
+    SuppliersComponent,
   ],
   imports: [
     // BrowserModule.withServerTransition({ appId: 'serverApp' }),

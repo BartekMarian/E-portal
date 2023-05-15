@@ -1,7 +1,6 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {Invoice} from "../../model/invoice";
 import {CellValueChangedEvent, ColDef, GridApi, GridReadyEvent, SideBarDef} from "ag-grid-community";
-import {InvoiceService} from "../invoice.service";
 import {Unit} from "../../model/unit";
 import {Item} from "../../model/item";
 import {AgGridAngular} from "ag-grid-angular";
@@ -68,6 +67,25 @@ export class ItemComponent implements OnInit {
     })
   }
 
+  setUpdateStatus(row: Item) {
+    // let updatedItems: Item [] = [];
+    // if (row.id > 0) {
+    //   row.editStatus = "UPDATE";
+    // }
+    // updatedItems.push(row)
+    // this.agGrid.gridOptions.api.applyTransaction({
+    //   update: updatedItems
+    // });
+    const selectedNodes = this.agGrid.gridOptions.api.getSelectedNodes();
+    const updatedRows = selectedNodes.map(node => {
+      return {
+        ...node.data,
+        editStatus: "UPDATE"
+      };
+    });
+    this.agGrid.gridOptions.api.applyTransaction( {update: updatedRows});
+  }
+
   removeItem() {
     this.closeEditor(false);
     const selected: Item [] = this.agGrid.gridOptions.api.getSelectedRows();
@@ -97,17 +115,6 @@ export class ItemComponent implements OnInit {
         data.push(node.data);
     });
     return data;
-  }
-
-
-  setUpdateStatus(row: Item) {
-    let updatedItems: Item [] = [];
-    if (row.id > 0) {
-      row.editStatus = 'UPDATE';
-    }
-    updatedItems.push(row)
-    this.gridApi.applyTransaction({update: updatedItems});
-    console.log(this.gridApi)
   }
 
   onGridReady(params: GridReadyEvent) {

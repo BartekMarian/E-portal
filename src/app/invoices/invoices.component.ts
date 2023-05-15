@@ -310,7 +310,7 @@ export class InvoicesComponent implements OnInit, OnDestroy {
     }
     let data = this.formGroup.getRawValue();
     data.orderStatus = false;
-    if (this.formGroup.get('id').value === 0){
+    if (this.formGroup.get('id').value >= 0 && this.formGroup.get('id').value != null ){
       data.items = this.itemComponent.save();
     }else {
       data.items.forEach( i => {
