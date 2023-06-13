@@ -3,14 +3,12 @@
 </div>
 
 <div class="detailForm-body">
-  <div #gridWrapper class="grid-wrapper">
     <input
       type="text"
       id="filter-text-box"
       placeholder="Vyhľadávanie...."
       (input)="onFilterTextBoxChanged()"/>
 
-    <div class="grid-wrapper">
       <ag-grid-angular
         domLayout='autoHeight'
         class="ag-theme-alpine"
@@ -26,6 +24,4 @@
         [paginationAutoPageSize]="true"
         [pagination]="true">
       </ag-grid-angular>
-    </div>
-  </div>
 </div>

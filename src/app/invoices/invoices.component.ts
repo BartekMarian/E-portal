@@ -22,6 +22,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {
   DeleteConfirmationDialogComponent
 } from "../dialog/delete-confirmation-dialog/delete-confirmation-dialog.component";
+import {Item} from "../model/item";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -54,6 +55,7 @@ export class InvoicesComponent implements OnInit, OnDestroy {
   public destroyed = new Subject<any>();
 
   editMode: boolean = false;
+  isFromEshop: boolean = false;
   rowData: Invoice [] = [];
   customers: Customer [] = [];
   suppliers: Supplier [] = [];
@@ -216,16 +218,20 @@ export class InvoicesComponent implements OnInit, OnDestroy {
     });
     this.formGroup.get('discount').valueChanges.subscribe(discount => {
       if (this.formGroup.get('id').value > 0){
-        let subtotal = 0;
         if (this.singleRow?.items.length > 0) {
-          this.singleRow.items.forEach(f => {
-            subtotal += f.sellingPrice * f.quantity
-          });
+          this.countSubtotal(this.singleRow.items)
         }
-        this.formGroup.get('subtotal').setValue(subtotal);
-        this.countAmountWithDiscount(discount, subtotal);
+        this.countAmountWithDiscount(discount, this.formGroup.get('subtotal').value);
       }
     })
+  }
+
+  countSubtotal(data: Item []){
+    let subtotal = 0;
+      data.forEach(f => {
+        subtotal += f.sellingPrice * f.quantity
+      });
+    this.formGroup.get('subtotal').setValue(subtotal);
   }
 
   countAmountWithDiscount(discount: number, subtotal: number) {
@@ -241,6 +247,14 @@ export class InvoicesComponent implements OnInit, OnDestroy {
     this.agGrid.api.setQuickFilter(
       (document.getElementById('filter-text-box') as HTMLInputElement).value
     );
+  }
+
+  filterOrders(checked){
+    if(checked){
+      return this.agGrid.gridOptions.api.setRowData(this.rowData.filter(f=>f.orderStatus == true))
+    }else {
+      return this.agGrid.gridOptions.api.setRowData(this.rowData)
+    }
   }
 
   onSingleRowSelected() {
@@ -309,14 +323,30 @@ export class InvoicesComponent implements OnInit, OnDestroy {
       return
     }
     let data = this.formGroup.getRawValue();
-    data.orderStatus = false;
-    if (this.formGroup.get('id').value >= 0 && this.formGroup.get('id').value != null ){
-      data.items = this.itemComponent.save();
-    }else {
-      data.items.forEach( i => {
-        i.editStatus = "INSERT";
+    this.countSubtotal(data.items);
+    this.countAmountWithDiscount(this.formGroup.get('discount').value, this.formGroup.get('subtotal').value);
+    data = this.formGroup.getRawValue();
+    let items =  this.itemComponent.save();
+    if (items.length > 0){
+      items.forEach(e=>{
+        data.items.push(e);
       })
     }
+    data.orderStatus = false;
+    if (data.id > 0){
+      data.items.forEach(s => {
+        if (s.editStatus == null){
+          s.editStatus = 'UPDATE';
+        }
+      })
+    }
+    // if (this.formGroup.get('id').value >= 0 && this.formGroup.get('id').value != null ){
+
+    // }else {
+    //   data.items.forEach( i => {
+    //     i.editStatus = "INSERT";
+    //   })
+    // }
     this.service.saveInvoice(data).subscribe(res => {
       if (res) {
         this.singleRow = null;

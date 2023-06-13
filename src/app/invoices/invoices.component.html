@@ -19,6 +19,16 @@
       <mat-date-range-picker #picker></mat-date-range-picker>
     </mat-form-field>
 
+    <div class="checkBoxEshopFilter">
+      <mat-checkbox
+        [checked]="isFromEshop"
+        [color]="'primary'"
+        (change)="filterOrders($event.checked)">
+        <mat-label>E-shop objednávky</mat-label>
+      </mat-checkbox>
+    </div>
+
+
 
     <div class="split-example ex-a">
       <as-split unit="percent"

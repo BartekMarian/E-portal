@@ -25,6 +25,21 @@
     font-size: 14px;
   }
 
+  .checkBoxEshopFilter {
+    position: absolute;
+    display: inline-flex;
+    width: 300px;
+    height: 65px;
+    font-size: 14px;
+    margin-left: 320px;
+    text-align: center;
+    padding-top: 13px;
+    padding-left: 30px;
+    background: #e9ecef;
+    border-style: solid;
+    border-width: 1px;
+  }
+
   .mat-datepicker-toggle {
     color: darkseagreen;
   }
